@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Navbar } from "./components/Navbar";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { Sidebar } from "./components/Sidebar";
+import { DesktopHeader } from "./components/DesktopHeader";
 import { MetricCards } from "./components/Dashboard/MetricCards";
 import { ContractAlerts } from "./components/Dashboard/ContractAlerts";
 import { GlobalFilters } from "./components/Dashboard/GlobalFilters";
@@ -23,8 +24,12 @@ import {
   ArrowRight,
   Database,
   AlertCircle,
+  Building2,
+  CheckCircle2,
+  TrendingUp,
 } from "lucide-react";
 import type { Employee, Department, AnalyticsData, KtpOcrResult } from "./types";
+import { exportEmployeesToCsv } from "./lib/utils";
 
 const DEFAULT_METRICS: AnalyticsData["metrics"] = {
   activeHeadcount: 0,
@@ -64,6 +69,9 @@ const DEFAULT_CHARTS: AnalyticsData["charts"] = {
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"dashboard" | "directory" | "scanner">("dashboard");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [globalSearch, setGlobalSearch] = useState("");
+
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [analytics, setAnalytics] = useState<AnalyticsData>({
@@ -89,12 +97,24 @@ export const App: React.FC = () => {
   const [activeOcrData, setActiveOcrData] = useState<KtpOcrResult | null>(null);
   const [activeOcrImage, setActiveOcrImage] = useState<string | null>(null);
 
+  // Keyboard shortcut listener (Ctrl+K or Cmd+K)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        const searchInput = document.querySelector('input[placeholder*="Cari"]') as HTMLInputElement;
+        if (searchInput) searchInput.focus();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   // Fetch Core Data
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
 
-      // Build queries with filters
       const analyticsQuery = new URLSearchParams();
       if (filterDept) analyticsQuery.append("departmentId", filterDept);
       if (filterStatus) analyticsQuery.append("status", filterStatus);
@@ -208,209 +228,242 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-indigo-600 selection:text-white">
-      {/* Top Navigation */}
-      <Navbar
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-row selection:bg-indigo-600 selection:text-white">
+      {/* Enterprise Left Desktop Sidebar */}
+      <Sidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onRefresh={fetchData}
+        collapsed={sidebarCollapsed}
+        setCollapsed={setSidebarCollapsed}
+        headcount={analytics.metrics.activeHeadcount}
+        expiringCount={analytics.metrics.totalExpiring}
+        onAddNew={() => {
+          setFormInitialData(null);
+          setIsFormModalOpen(true);
+        }}
+        onOpenScanner={() => setIsCameraModalOpen(true)}
         onSeedData={handleSeedData}
         isSeeding={isSeeding}
-        expiringCount={analytics.metrics.totalExpiring}
       />
 
-      {/* System Notice Toast */}
-      {systemNotice && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-3 w-full animate-in fade-in">
-          <div className="p-3 bg-indigo-600/90 text-white rounded-xl shadow-lg flex items-center justify-between text-xs font-medium">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 shrink-0" />
-              <span>{systemNotice}</span>
-            </div>
-            <button onClick={() => setSystemNotice(null)} className="underline text-[11px]">
-              Tutup
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Main Content Area (Dynamic Margin for Sidebar) */}
+      <div
+        className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out ${
+          sidebarCollapsed ? "ml-20" : "ml-72"
+        }`}
+      >
+        {/* Desktop Top Header Bar */}
+        <DesktopHeader
+          activeTab={activeTab}
+          globalSearch={globalSearch}
+          setGlobalSearch={(query) => {
+            setGlobalSearch(query);
+            if (query && activeTab !== "directory") {
+              setActiveTab("directory");
+            }
+          }}
+          onRefresh={fetchData}
+          onAddNew={() => {
+            setFormInitialData(null);
+            setIsFormModalOpen(true);
+          }}
+          onOpenScanner={() => setIsCameraModalOpen(true)}
+          onExportCsv={() => exportEmployeesToCsv(employees)}
+          expiringCount={analytics.metrics.totalExpiring}
+        />
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full space-y-6">
-        {/* ========================================================================= */}
-        {/* TAB 1: EXECUTIVE HR DASHBOARD                                              */}
-        {/* ========================================================================= */}
-        {activeTab === "dashboard" && (
-          <div className="space-y-6 animate-in fade-in">
-            {/* Global Filters */}
-            <GlobalFilters
-              departments={departments}
-              selectedDepartment={filterDept}
-              setSelectedDepartment={setFilterDept}
-              selectedStatus={filterStatus}
-              setSelectedStatus={setFilterStatus}
-              onReset={() => {
-                setFilterDept("");
-                setFilterStatus("");
-              }}
-            />
-
-            {/* KPI Metric Cards */}
-            <MetricCards
-              metrics={analytics.metrics}
-              onExpiringClick={() => {
-                const el = document.getElementById("contract-alerts-section");
-                el?.scrollIntoView({ behavior: "smooth" });
-              }}
-            />
-
-            {/* Smart Contract Reminder Widget */}
-            <div id="contract-alerts-section">
-              <ContractAlerts
-                expiring30Days={analytics.alerts.expiring30Days}
-                expiring60Days={analytics.alerts.expiring60Days}
-                onSelectEmployee={(id) => {
-                  const target = employees.find((e) => e.id === id);
-                  if (target) setSelectedEmployee(target);
-                }}
-              />
-            </div>
-
-            {/* Charts Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <GenderChart data={analytics.charts.genderDistribution} />
-              <EmploymentStatusChart data={analytics.charts.employmentStatus} />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <AgePyramidChart data={analytics.charts.agePyramid} />
-              <TenureChart data={analytics.charts.tenureDistribution} />
-            </div>
-
-            <div>
-              <DepartmentChart data={analytics.charts.departmentBreakdown} />
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================================= */}
-        {/* TAB 2: EMPLOYEE MASTER DATA & DIRECTORY                                    */}
-        {/* ========================================================================= */}
-        {activeTab === "directory" && (
-          <div className="space-y-6 animate-in fade-in">
-            <EmployeeDirectory
-              employees={employees}
-              departments={departments}
-              onViewEmployee={(emp) => setSelectedEmployee(emp)}
-              onEditEmployee={(emp) => {
-                setFormInitialData(emp);
-                setIsFormModalOpen(true);
-              }}
-              onDeleteEmployee={handleDeleteEmployee}
-              onAddNew={() => {
-                setFormInitialData(null);
-                setIsFormModalOpen(true);
-              }}
-            />
-          </div>
-        )}
-
-        {/* ========================================================================= */}
-        {/* TAB 3: SMART OCR ONBOARDING (PWA CAMERA & GEMINI FLASH)                    */}
-        {/* ========================================================================= */}
-        {activeTab === "scanner" && (
-          <div className="space-y-6 animate-in fade-in">
-            {activeOcrData && activeOcrImage ? (
-              <OcrReviewForm
-                ocrData={activeOcrData}
-                capturedImageBase64={activeOcrImage}
-                departments={departments}
-                onCancel={() => {
-                  setActiveOcrData(null);
-                  setActiveOcrImage(null);
-                  setIsCameraModalOpen(true);
-                }}
-                onSubmitSuccess={async () => {
-                  setActiveOcrData(null);
-                  setActiveOcrImage(null);
-                  setSystemNotice("Karyawan baru hasil pindai KTP berhasil diverifikasi dan disimpan!");
-                  await fetchData();
-                  setActiveTab("directory");
-                }}
-              />
-            ) : (
-              <div className="glass-panel rounded-2xl border-slate-800 p-8 sm:p-12 text-center max-w-3xl mx-auto space-y-6">
-                <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-emerald-500 mx-auto flex items-center justify-center shadow-xl shadow-indigo-500/25 border border-indigo-400/30">
-                  <Camera className="w-10 h-10 text-white" />
-                </div>
-
-                <div>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight">
-                    Onboarding Cepat dengan AI OCR Scanner
-                  </h2>
-                  <p className="mt-2 text-sm text-slate-400 max-w-lg mx-auto leading-relaxed">
-                    Pindai e-KTP atau Kartu Keluarga langsung menggunakan kamera perangkat Anda. AI
-                    Google Gemini 1.5 Flash akan mengekstrak 16-digit NIK, Nama, Tanggal Lahir, dan
-                    Alamat secara otomatis ke dalam formulir.
-                  </p>
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-                  <button
-                    onClick={() => setIsCameraModalOpen(true)}
-                    className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-emerald-600 hover:from-indigo-500 hover:to-emerald-500 text-white text-sm font-bold shadow-xl shadow-indigo-600/30 transition transform hover:-translate-y-0.5"
-                  >
-                    <Camera className="w-5 h-5" />
-                    <span>Buka Kamera Pindai KTP</span>
-                  </button>
-                </div>
-
-                {/* Workflow Feature Steps */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-slate-800 text-left">
-                  <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
-                    <div className="flex items-center gap-2 text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">
-                      <Zap className="w-3.5 h-3.5" />
-                      1. Kamera & Canvas
-                    </div>
-                    <p className="text-xs text-slate-400">
-                      Auto-crop dengan panduan KTP dan kompresi kanvas di bawah 600 KB tanpa lag.
-                    </p>
-                  </div>
-
-                  <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
-                    <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-wider mb-1">
-                      <Sparkles className="w-3.5 h-3.5" />
-                      2. Gemini Flash AI
-                    </div>
-                    <p className="text-xs text-slate-400">
-                      Mengekstrak data kependudukan secara akurat dengan schema JSON terstruktur.
-                    </p>
-                  </div>
-
-                  <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
-                    <div className="flex items-center gap-2 text-xs font-bold text-amber-400 uppercase tracking-wider mb-1">
-                      <ShieldCheck className="w-3.5 h-3.5" />
-                      3. Review & Simpan
-                    </div>
-                    <p className="text-xs text-slate-400">
-                      Verifikasi berdampingan (gambar vs form) dan validasi Zod sebelum masuk database.
-                    </p>
-                  </div>
-                </div>
+        {/* System Notice Toast */}
+        {systemNotice && (
+          <div className="px-6 sm:px-8 mt-4 w-full animate-in fade-in">
+            <div className="p-3.5 bg-indigo-600 text-white rounded-xl shadow-xl flex items-center justify-between text-xs font-semibold">
+              <div className="flex items-center gap-2.5">
+                <Sparkles className="w-4 h-4 shrink-0 text-indigo-200" />
+                <span>{systemNotice}</span>
               </div>
-            )}
+              <button onClick={() => setSystemNotice(null)} className="underline text-[11px] opacity-80 hover:opacity-100">
+                Tutup
+              </button>
+            </div>
           </div>
         )}
-      </main>
 
-      {/* Footer */}
-      <footer className="mt-auto border-t border-slate-900 bg-slate-950/80 py-4 text-center text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>MyUPL Enterprise HR & Employee Data Management System</span>
-          <span className="font-mono text-[11px] text-slate-600">
-            Powered by Turso libSQL • Cloudflare Pages Edge • Gemini 1.5 Flash
-          </span>
-        </div>
-      </footer>
+        {/* Main Desktop Dashboard Canvas */}
+        <main className="flex-1 px-6 sm:px-8 py-6 w-full max-w-[1720px] mx-auto space-y-6">
+          {/* ========================================================================= */}
+          {/* TAB 1: EXECUTIVE HR DASHBOARD (MAXIMIZED DESKTOP LAYOUT)                 */}
+          {/* ========================================================================= */}
+          {activeTab === "dashboard" && (
+            <div className="space-y-6 animate-in fade-in">
+              {/* Row 1: Global Filters & Date Range Bar */}
+              <GlobalFilters
+                departments={departments}
+                selectedDepartment={filterDept}
+                setSelectedDepartment={setFilterDept}
+                selectedStatus={filterStatus}
+                setSelectedStatus={setFilterStatus}
+                onReset={() => {
+                  setFilterDept("");
+                  setFilterStatus("");
+                }}
+              />
+
+              {/* Row 2: 4 High-Density KPI Metric Cards */}
+              <MetricCards
+                metrics={analytics.metrics}
+                onExpiringClick={() => {
+                  const el = document.getElementById("contract-alerts-section");
+                  el?.scrollIntoView({ behavior: "smooth" });
+                }}
+              />
+
+              {/* Row 3: Smart Contract Reminder Widget */}
+              <div id="contract-alerts-section">
+                <ContractAlerts
+                  expiring30Days={analytics.alerts.expiring30Days}
+                  expiring60Days={analytics.alerts.expiring60Days}
+                  onSelectEmployee={(id) => {
+                    const target = employees.find((e) => e.id === id);
+                    if (target) setSelectedEmployee(target);
+                  }}
+                />
+              </div>
+
+              {/* Row 4: Visual Analytics 2x2 Desktop Grid */}
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+                <GenderChart data={analytics.charts.genderDistribution} />
+                <EmploymentStatusChart data={analytics.charts.employmentStatus} />
+              </div>
+
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+                <AgePyramidChart data={analytics.charts.agePyramid} />
+                <TenureChart data={analytics.charts.tenureDistribution} />
+              </div>
+
+              {/* Row 5: Full-Width Department Headcount Breakdown */}
+              <div>
+                <DepartmentChart data={analytics.charts.departmentBreakdown} />
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* TAB 2: EMPLOYEE MASTER DATA & DIRECTORY                                    */}
+          {/* ========================================================================= */}
+          {activeTab === "directory" && (
+            <div className="space-y-6 animate-in fade-in">
+              <EmployeeDirectory
+                employees={employees}
+                departments={departments}
+                onViewEmployee={(emp) => setSelectedEmployee(emp)}
+                onEditEmployee={(emp) => {
+                  setFormInitialData(emp);
+                  setIsFormModalOpen(true);
+                }}
+                onDeleteEmployee={handleDeleteEmployee}
+                onAddNew={() => {
+                  setFormInitialData(null);
+                  setIsFormModalOpen(true);
+                }}
+              />
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* TAB 3: SMART OCR ONBOARDING (PWA CAMERA & GEMINI FLASH)                    */}
+          {/* ========================================================================= */}
+          {activeTab === "scanner" && (
+            <div className="space-y-6 animate-in fade-in">
+              {activeOcrData && activeOcrImage ? (
+                <OcrReviewForm
+                  ocrData={activeOcrData}
+                  capturedImageBase64={activeOcrImage}
+                  departments={departments}
+                  onCancel={() => {
+                    setActiveOcrData(null);
+                    setActiveOcrImage(null);
+                    setIsCameraModalOpen(true);
+                  }}
+                  onSubmitSuccess={async () => {
+                    setActiveOcrData(null);
+                    setActiveOcrImage(null);
+                    setSystemNotice("Karyawan baru hasil pindai KTP berhasil diverifikasi dan disimpan ke Turso!");
+                    await fetchData();
+                    setActiveTab("directory");
+                  }}
+                />
+              ) : (
+                <div className="glass-panel rounded-3xl border-slate-800 p-8 xl:p-14 text-center max-w-4xl mx-auto space-y-6 shadow-2xl">
+                  <div className="w-24 h-24 rounded-3xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-emerald-500 mx-auto flex items-center justify-center shadow-2xl shadow-indigo-500/30 border border-indigo-400/40">
+                    <Camera className="w-12 h-12 text-white" />
+                  </div>
+
+                  <div>
+                    <h2 className="text-3xl font-extrabold text-white tracking-tight">
+                      Onboarding Karyawan Cepat Berbasis AI Vision
+                    </h2>
+                    <p className="mt-2 text-sm text-slate-400 max-w-xl mx-auto leading-relaxed">
+                      Sistem terintegrasi dengan Google Gemini 3.8 Flash untuk mengekstrak data e-KTP dan Kartu Keluarga secara otomatis dengan akurasi tinggi.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-3">
+                    <button
+                      onClick={() => setIsCameraModalOpen(true)}
+                      className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-emerald-600 hover:from-indigo-500 hover:to-emerald-500 text-white text-sm font-bold shadow-xl shadow-indigo-600/30 transition transform hover:-translate-y-0.5"
+                    >
+                      <Camera className="w-5 h-5" />
+                      <span>Mulai Pindai e-KTP / KK</span>
+                    </button>
+                  </div>
+
+                  {/* 3 Step Workflow */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-8 border-t border-slate-800/80 text-left">
+                    <div className="p-4 rounded-2xl bg-slate-900/70 border border-slate-800">
+                      <div className="flex items-center gap-2 text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1.5">
+                        <Zap className="w-4 h-4" />
+                        1. Kamera / Paste Foto
+                      </div>
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        Gunakan webcam HD atau paste (Ctrl+V) foto e-KTP langsung dari clipboard PC Anda.
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-slate-900/70 border border-slate-800">
+                      <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-wider mb-1.5">
+                        <Sparkles className="w-4 h-4" />
+                        2. Gemini 3.8 Flash
+                      </div>
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        AI membaca 16 digit NIK, nama lengkap, tanggal lahir, dan alamat dengan koreksi karakter otomatis.
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-slate-900/70 border border-slate-800">
+                      <div className="flex items-center gap-2 text-xs font-bold text-amber-400 uppercase tracking-wider mb-1.5">
+                        <ShieldCheck className="w-4 h-4" />
+                        3. Side-by-Side Review
+                      </div>
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        Tinjau foto fisik berdampingan dengan formulir sebelum disimpan permanen ke database Turso.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </main>
+
+        {/* Desktop Footer */}
+        <footer className="border-t border-slate-900 bg-slate-950/80 py-4 px-8 text-xs text-slate-500 mt-auto">
+          <div className="max-w-[1720px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+            <span>MyUPL Enterprise HR & Employee Information System • PT Ulu Plastik Latersia</span>
+            <span className="font-mono text-[11px] text-slate-600">
+              Turso SQLite • Cloudflare Pages Functions • Gemini 3.8 Flash
+            </span>
+          </div>
+        </footer>
+      </div>
 
       {/* Global Modals */}
       <EmployeeDetailModal
