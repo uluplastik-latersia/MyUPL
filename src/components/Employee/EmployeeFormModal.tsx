@@ -115,26 +115,26 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
-      <div className="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl relative flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in">
+      <div className="bg-white border border-slate-200/90 rounded-3xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl relative flex flex-col">
         {/* Header */}
-        <div className="sticky top-0 bg-slate-900/95 backdrop-blur border-b border-slate-800 p-5 flex items-center justify-between z-10">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+        <div className="sticky top-0 bg-white/95 backdrop-blur border-b border-slate-100 p-5 flex items-center justify-between z-10">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600 border border-blue-100">
               <User className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white tracking-tight">
+              <h3 className="text-base font-bold text-slate-800 tracking-tight">
                 {initialData ? "Edit Profil Karyawan" : "Pendaftaran Karyawan Baru"}
               </h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500">
                 Formulir master data kepegawaian MyUPL
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition"
+            className="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition"
           >
             <X className="w-5 h-5" />
           </button>
@@ -143,21 +143,21 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6 flex-1">
           {errorMessage && (
-            <div className="p-3.5 rounded-lg bg-rose-500/10 border border-rose-500/30 flex items-center gap-2.5 text-xs text-rose-300">
-              <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+            <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 flex items-center gap-2.5 text-xs text-rose-600 font-medium">
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
               <span>{errorMessage}</span>
             </div>
           )}
 
           {/* Section: Identitas KTP */}
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-400 mb-3 flex items-center gap-1.5">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-blue-600 mb-3.5 flex items-center gap-1.5">
               <CreditCard className="w-3.5 h-3.5" />
               1. Identitas Kependudukan (KTP / KK)
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
                   Nomor Induk Kependudukan (NIK) *
                 </label>
                 <input
@@ -169,12 +169,12 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                     setFormData({ ...formData, nik: e.target.value.replace(/\D/g, "") })
                   }
                   placeholder="Contoh: 3171012508940001"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 font-mono placeholder-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
                   Nomor Kartu Keluarga (No. KK)
                 </label>
                 <input
@@ -185,12 +185,12 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                     setFormData({ ...formData, noKk: e.target.value.replace(/\D/g, "") })
                   }
                   placeholder="16 Digit No KK"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 font-mono placeholder-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <label className="text-xs font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
                   Nama Lengkap Sesuai KTP *
                 </label>
                 <input
@@ -199,12 +199,12 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                   value={formData.fullName || ""}
                   onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                   placeholder="Nama Lengkap Karyawan"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white uppercase focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 uppercase placeholder-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
                   Jenis Kelamin *
                 </label>
                 <select
@@ -212,7 +212,7 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                   onChange={(e) =>
                     setFormData({ ...formData, gender: e.target.value as Gender })
                   }
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                 >
                   <option value="LAKI-LAKI">LAKI-LAKI</option>
                   <option value="PEREMPUAN">PEREMPUAN</option>
@@ -220,7 +220,7 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
                   Tanggal Lahir *
                 </label>
                 <input
@@ -228,12 +228,12 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                   required
                   value={formData.birthDate || ""}
                   onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
                   Tempat Lahir
                 </label>
                 <input
@@ -241,16 +241,16 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                   value={formData.birthPlace || ""}
                   onChange={(e) => setFormData({ ...formData, birthPlace: e.target.value })}
                   placeholder="Kota / Kabupaten Kelahiran"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">Agama</label>
+                <label className="text-xs font-semibold text-slate-700 block mb-1.5">Agama</label>
                 <select
                   value={formData.religion || "ISLAM"}
                   onChange={(e) => setFormData({ ...formData, religion: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                 >
                   <option value="ISLAM">ISLAM</option>
                   <option value="KRISTEN">KRISTEN</option>
@@ -262,7 +262,7 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
                   Status Perkawinan
                 </label>
                 <select
@@ -270,7 +270,7 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                   onChange={(e) =>
                     setFormData({ ...formData, maritalStatus: e.target.value })
                   }
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                 >
                   <option value="BELUM KAWIN">BELUM KAWIN</option>
                   <option value="KAWIN">KAWIN</option>
@@ -280,7 +280,7 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
               </div>
 
               <div className="sm:col-span-2">
-                <label className="text-xs font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
                   Alamat Lengkap Domisili KTP
                 </label>
                 <textarea
@@ -288,7 +288,7 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                   value={formData.address || ""}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                   placeholder="Alamat, RT/RW, Kelurahan, Kecamatan, Kota"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                 />
               </div>
             </div>
@@ -296,20 +296,20 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
 
           {/* Section: Hubungan & Penempatan Kerja */}
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-3 flex items-center gap-1.5">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-600 mb-3.5 flex items-center gap-1.5">
               <Building2 className="w-3.5 h-3.5" />
               2. Data Penempatan & Hubungan Kerja
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
                   Departemen / Divisi *
                 </label>
                 <select
                   required
                   value={formData.departmentId || ""}
                   onChange={(e) => setFormData({ ...formData, departmentId: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                 >
                   <option value="">Pilih Departemen</option>
                   {departments.map((dept) => (
@@ -321,7 +321,7 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
                   Posisi / Jabatan *
                 </label>
                 <input
@@ -330,12 +330,12 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                   value={formData.position || ""}
                   onChange={(e) => setFormData({ ...formData, position: e.target.value })}
                   placeholder="Misal: Senior Developer, Staff Logistik"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
                   Status Hubungan Kerja *
                 </label>
                 <select
@@ -346,7 +346,7 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                       employmentStatus: e.target.value as EmploymentStatus,
                     })
                   }
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                 >
                   <option value="TETAP">TETAP (PKWTT)</option>
                   <option value="KONTRAK">KONTRAK (PKWT)</option>
@@ -356,7 +356,7 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">
+                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
                   Tanggal Masuk Kerja (Join Date) *
                 </label>
                 <input
@@ -364,13 +364,13 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                   required
                   value={formData.joinDate || ""}
                   onChange={(e) => setFormData({ ...formData, joinDate: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                 />
               </div>
 
               {formData.employmentStatus === "KONTRAK" && (
                 <div>
-                  <label className="text-xs font-semibold text-amber-400 block mb-1">
+                  <label className="text-xs font-semibold text-amber-600 block mb-1.5">
                     Batas Akhir Kontrak PKWT (End Date) *
                   </label>
                   <input
@@ -380,7 +380,7 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                     onChange={(e) =>
                       setFormData({ ...formData, endContractDate: e.target.value })
                     }
-                    className="w-full bg-slate-950 border border-amber-500/50 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                    className="w-full bg-amber-50/50 border border-amber-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition"
                   />
                 </div>
               )}
@@ -393,9 +393,9 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                   onChange={(e) =>
                     setFormData({ ...formData, isActive: e.target.checked })
                   }
-                  className="w-4 h-4 rounded border-slate-700 text-indigo-600 focus:ring-indigo-500 bg-slate-950"
+                  className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 bg-white"
                 />
-                <label htmlFor="isActiveToggle" className="text-xs font-medium text-slate-200">
+                <label htmlFor="isActiveToggle" className="text-xs font-semibold text-slate-700">
                   Karyawan Masih Aktif Bekerja
                 </label>
               </div>
@@ -403,18 +403,18 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
           </div>
 
           {/* Footer Actions */}
-          <div className="pt-4 border-t border-slate-800 flex justify-end gap-3">
+          <div className="pt-5 border-t border-slate-100 flex justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition"
+              className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold transition"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center gap-2 px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition shadow-lg shadow-indigo-600/30 disabled:opacity-50"
+              className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition shadow-md shadow-blue-500/20 disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               <span>{loading ? "Menyimpan..." : "Simpan Karyawan"}</span>

@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from "react";
 import {
   Search,
+  Bell,
   RefreshCw,
   Plus,
   Camera,
   FileSpreadsheet,
-  Clock,
-  Bell,
-  Command,
-  ChevronRight,
-  Shield,
-  User,
 } from "lucide-react";
 
 interface DesktopHeaderProps {
@@ -34,130 +29,82 @@ export const DesktopHeader: React.FC<DesktopHeaderProps> = ({
   onExportCsv,
   expiringCount,
 }) => {
-  const [currentTime, setCurrentTime] = useState("");
+  const [greeting, setGreeting] = useState("Selamat Pagi");
 
   useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      const options: Intl.DateTimeFormatOptions = {
-        weekday: "short",
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      };
-      setCurrentTime(now.toLocaleDateString("id-ID", options) + " WIB");
-    };
-
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
+    const hour = new Date().getHours();
+    if (hour >= 4 && hour < 11) setGreeting("Selamat Pagi");
+    else if (hour >= 11 && hour < 15) setGreeting("Selamat Siang");
+    else if (hour >= 15 && hour < 18) setGreeting("Selamat Sore");
+    else setGreeting("Selamat Malam");
   }, []);
 
-  const getBreadcrumbTitle = () => {
-    switch (activeTab) {
-      case "dashboard":
-        return {
-          section: "HR Analytics",
-          title: "Executive Intelligence & Demographics",
-          subtitle: "Analitik komprehensif, retensi karyawan, dan visualisasi tenaga kerja",
-        };
-      case "directory":
-        return {
-          section: "Kepegawaian",
-          title: "Master Data & Direktori Karyawan",
-          subtitle: "Daftar seluruh data karyawan aktif, riwayat PKWT, dan ekspor data",
-        };
-      case "scanner":
-        return {
-          section: "Onboarding",
-          title: "Smart e-KTP & KK Scanner AI",
-          subtitle: "Ekstraksi data kependudukan instan menggunakan Google Gemini 3.8 Flash",
-        };
-    }
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
   };
 
-  const breadcrumb = getBreadcrumbTitle();
-
   return (
-    <header className="sticky top-0 z-30 h-16 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800 px-6 flex items-center justify-between gap-4">
-      {/* Left: Breadcrumbs & Title */}
-      <div className="flex items-center gap-3">
-        <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-400">
-          <span className="font-semibold text-indigo-400">MyUPL</span>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
-          <span className="text-slate-300 font-medium">{breadcrumb.section}</span>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
-        </div>
-        <div>
-          <h1 className="text-sm sm:text-base font-bold text-white tracking-tight leading-tight">
-            {breadcrumb.title}
-          </h1>
-        </div>
-      </div>
-
-      {/* Middle: Universal Search Bar (Ctrl+K) */}
-      <div className="hidden md:flex items-center flex-1 max-w-md mx-4">
-        <div className="relative w-full">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+    <header className="sticky top-0 z-30 h-20 bg-white border-b border-slate-100 px-8 flex items-center justify-between gap-6 shadow-[0_2px_10px_rgba(0,0,0,0.015)]">
+      {/* Search Input Bar matching Reference Image (Pill shape with embedded Search button) */}
+      <form onSubmit={handleSearchSubmit} className="flex-1 max-w-md">
+        <div className="relative flex items-center bg-[#F4F6FB] rounded-full p-1 pl-4 border border-slate-200/80 focus-within:border-blue-500 focus-within:bg-white transition-all shadow-sm">
+          <Search className="w-4 h-4 text-slate-400 shrink-0 mr-2.5" />
           <input
             type="text"
             value={globalSearch}
             onChange={(e) => setGlobalSearch(e.target.value)}
-            placeholder="Cari cepat NIK, Nama, Divisi, atau Jabatan..."
-            className="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl pl-9 pr-14 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition shadow-inner"
+            placeholder="Search"
+            className="w-full bg-transparent text-xs text-slate-800 placeholder-slate-400 focus:outline-none"
           />
-          <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-0.5 pointer-events-none">
-            <kbd className="px-1.5 py-0.5 text-[10px] font-mono text-slate-400 bg-slate-800 border border-slate-700 rounded shadow">
-              ⌘K
-            </kbd>
-          </div>
+          <button
+            type="submit"
+            className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-6 py-2 text-xs font-semibold shadow-sm transition shrink-0"
+          >
+            Search
+          </button>
         </div>
-      </div>
+      </form>
 
-      {/* Right: Actions, Live Clock & Profile */}
-      <div className="flex items-center gap-3">
-        {/* Real-time Digital Clock */}
-        <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-950/60 border border-slate-800 text-xs text-slate-300 font-mono">
-          <Clock className="w-3.5 h-3.5 text-indigo-400" />
-          <span className="tracking-tight">{currentTime}</span>
-        </div>
-
-        {/* Refresh Sync */}
+      {/* Right: Greeting, Notifications & Profile Avatar */}
+      <div className="flex items-center gap-6">
+        {/* Quick Sync */}
         <button
           onClick={onRefresh}
-          className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 border border-slate-800 hover:border-slate-700 transition"
-          title="Sinkronisasi Data Live"
+          className="p-2 text-slate-400 hover:text-blue-600 rounded-full hover:bg-slate-100 transition"
+          title="Refresh Data"
         >
           <RefreshCw className="w-4 h-4" />
         </button>
 
-        {/* Export CSV Shortcut */}
-        <button
-          onClick={onExportCsv}
-          className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition"
-          title="Unduh seluruh data ke CSV / Excel"
-        >
-          <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />
-          <span>Export Excel</span>
-        </button>
+        {/* Greeting Text */}
+        <div className="hidden sm:block text-right">
+          <span className="text-sm font-medium text-slate-600">
+            {greeting},{" "}
+            <strong className="text-slate-900 font-bold">Puput Setiadi!</strong>
+          </span>
+        </div>
 
-        {/* Separator */}
-        <div className="h-6 w-px bg-slate-800 hidden sm:block" />
+        {/* Notification Bell */}
+        <div className="relative cursor-pointer p-2 rounded-full hover:bg-slate-100 text-slate-500 transition">
+          <Bell className="w-5 h-5" />
+          {expiringCount > 0 && (
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-white ring-2 ring-rose-500/20" />
+          )}
+        </div>
 
-        {/* User Profile Badge */}
-        <div className="flex items-center gap-2.5 pl-1">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-indigo-500 flex items-center justify-center font-bold text-white text-xs shadow-md shadow-indigo-600/20 border border-indigo-400/30">
-            HR
-          </div>
-          <div className="hidden sm:block text-left">
-            <div className="text-xs font-bold text-white leading-tight">Admin HRD</div>
-            <div className="text-[10px] text-emerald-400 font-medium flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              PT Ulu Plastik
-            </div>
+        {/* User Circular Avatar */}
+        <div className="flex items-center gap-3 pl-1">
+          <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-slate-200 shadow-sm bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm">
+            <img
+              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150"
+              alt="Puput Setiadi"
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                // Fallback to initials if unsplash fails
+                (e.target as HTMLElement).style.display = 'none';
+              }}
+            />
+            <span>PS</span>
           </div>
         </div>
       </div>

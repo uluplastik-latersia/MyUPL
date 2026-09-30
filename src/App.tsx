@@ -228,7 +228,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-row selection:bg-indigo-600 selection:text-white">
+    <div className="min-h-screen bg-[#F4F6FB] text-slate-800 flex flex-row selection:bg-blue-600 selection:text-white">
       {/* Enterprise Left Desktop Sidebar */}
       <Sidebar
         activeTab={activeTab}
@@ -392,58 +392,58 @@ export const App: React.FC = () => {
                   }}
                 />
               ) : (
-                <div className="glass-panel rounded-3xl border-slate-800 p-8 xl:p-14 text-center max-w-4xl mx-auto space-y-6 shadow-2xl">
-                  <div className="w-24 h-24 rounded-3xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-emerald-500 mx-auto flex items-center justify-center shadow-2xl shadow-indigo-500/30 border border-indigo-400/40">
-                    <Camera className="w-12 h-12 text-white" />
+                <div className="bg-white rounded-3xl border border-slate-100 p-8 xl:p-14 text-center max-w-4xl mx-auto space-y-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+                  <div className="w-20 h-20 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 mx-auto flex items-center justify-center shadow-sm">
+                    <Camera className="w-10 h-10" />
                   </div>
 
                   <div>
-                    <h2 className="text-3xl font-extrabold text-white tracking-tight">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">
                       Onboarding Karyawan Cepat Berbasis AI Vision
                     </h2>
-                    <p className="mt-2 text-sm text-slate-400 max-w-xl mx-auto leading-relaxed">
+                    <p className="mt-2 text-sm text-slate-500 max-w-xl mx-auto leading-relaxed">
                       Sistem terintegrasi dengan Google Gemini 3.8 Flash untuk mengekstrak data e-KTP dan Kartu Keluarga secara otomatis dengan akurasi tinggi.
                     </p>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-3">
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-2">
                     <button
                       onClick={() => setIsCameraModalOpen(true)}
-                      className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-emerald-600 hover:from-indigo-500 hover:to-emerald-500 text-white text-sm font-bold shadow-xl shadow-indigo-600/30 transition transform hover:-translate-y-0.5"
+                      className="w-full sm:w-auto flex items-center justify-center gap-2 px-7 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-md shadow-blue-500/20 transition transform hover:-translate-y-0.5"
                     >
-                      <Camera className="w-5 h-5" />
+                      <Camera className="w-4 h-4" />
                       <span>Mulai Pindai e-KTP / KK</span>
                     </button>
                   </div>
 
                   {/* 3 Step Workflow */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-8 border-t border-slate-800/80 text-left">
-                    <div className="p-4 rounded-2xl bg-slate-900/70 border border-slate-800">
-                      <div className="flex items-center gap-2 text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1.5">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-8 border-t border-slate-100 text-left">
+                    <div className="p-5 rounded-2xl bg-slate-50/80 border border-slate-100">
+                      <div className="flex items-center gap-2 text-xs font-bold text-blue-600 uppercase tracking-wider mb-1.5">
                         <Zap className="w-4 h-4" />
                         1. Kamera / Paste Foto
                       </div>
-                      <p className="text-xs text-slate-400 leading-relaxed">
+                      <p className="text-xs text-slate-500 leading-relaxed">
                         Gunakan webcam HD atau paste (Ctrl+V) foto e-KTP langsung dari clipboard PC Anda.
                       </p>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-slate-900/70 border border-slate-800">
-                      <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-wider mb-1.5">
+                    <div className="p-5 rounded-2xl bg-slate-50/80 border border-slate-100">
+                      <div className="flex items-center gap-2 text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1.5">
                         <Sparkles className="w-4 h-4" />
                         2. Gemini 3.8 Flash
                       </div>
-                      <p className="text-xs text-slate-400 leading-relaxed">
+                      <p className="text-xs text-slate-500 leading-relaxed">
                         AI membaca 16 digit NIK, nama lengkap, tanggal lahir, dan alamat dengan koreksi karakter otomatis.
                       </p>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-slate-900/70 border border-slate-800">
-                      <div className="flex items-center gap-2 text-xs font-bold text-amber-400 uppercase tracking-wider mb-1.5">
+                    <div className="p-5 rounded-2xl bg-slate-50/80 border border-slate-100">
+                      <div className="flex items-center gap-2 text-xs font-bold text-amber-600 uppercase tracking-wider mb-1.5">
                         <ShieldCheck className="w-4 h-4" />
                         3. Side-by-Side Review
                       </div>
-                      <p className="text-xs text-slate-400 leading-relaxed">
+                      <p className="text-xs text-slate-500 leading-relaxed">
                         Tinjau foto fisik berdampingan dengan formulir sebelum disimpan permanen ke database Turso.
                       </p>
                     </div>
@@ -455,10 +455,10 @@ export const App: React.FC = () => {
         </main>
 
         {/* Desktop Footer */}
-        <footer className="border-t border-slate-900 bg-slate-950/80 py-4 px-8 text-xs text-slate-500 mt-auto">
+        <footer className="border-t border-slate-200/80 bg-white py-4 px-8 text-xs text-slate-500 mt-auto">
           <div className="max-w-[1720px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
             <span>MyUPL Enterprise HR & Employee Information System • PT Ulu Plastik Latersia</span>
-            <span className="font-mono text-[11px] text-slate-600">
+            <span className="font-mono text-[11px] text-slate-400">
               Turso SQLite • Cloudflare Pages Functions • Gemini 3.8 Flash
             </span>
           </div>

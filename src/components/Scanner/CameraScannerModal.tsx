@@ -228,25 +228,25 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/85 backdrop-blur-md animate-in fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/50 backdrop-blur-sm animate-in fade-in"
     >
-      <div className="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-3xl max-h-[92vh] overflow-hidden shadow-2xl relative flex flex-col">
+      <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-3xl max-h-[92vh] overflow-hidden shadow-2xl relative flex flex-col">
         {/* Header with Mode Switcher */}
-        <div className="p-4 bg-slate-900/95 border-b border-slate-800 flex items-center justify-between z-20">
+        <div className="p-4 sm:p-5 bg-white border-b border-slate-100 flex items-center justify-between z-20">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600 border border-blue-100">
               <Camera className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-white tracking-tight">
+                <h3 className="text-base font-bold text-slate-800 tracking-tight">
                   Pindai Dokumen Kependudukan (e-KTP / KK)
                 </h3>
-                <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-mono px-2 py-0.5 rounded-full font-bold">
+                <span className="text-[10px] bg-blue-50 text-blue-700 font-mono px-2 py-0.5 rounded-full font-bold border border-blue-200">
                   Gemini 3.8 Flash
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500">
                 Pilih menggunakan kamera webcam atau drag-and-drop / paste (Ctrl+V) foto
               </p>
             </div>
@@ -254,7 +254,7 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
 
           <div className="flex items-center gap-3">
             {/* Mode Switcher */}
-            <div className="hidden sm:flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+            <div className="hidden sm:flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 text-xs">
               <button
                 onClick={() => {
                   setActiveMode("camera");
@@ -263,8 +263,8 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
                 }}
                 className={`px-3 py-1.5 rounded-lg font-semibold transition ${
                   activeMode === "camera"
-                    ? "bg-indigo-600 text-white shadow-sm"
-                    : "text-slate-400 hover:text-white"
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "text-slate-600 hover:text-slate-900"
                 }`}
               >
                 Kamera Langsung
@@ -276,8 +276,8 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
                 }}
                 className={`px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 ${
                   activeMode === "upload"
-                    ? "bg-indigo-600 text-white shadow-sm"
-                    : "text-slate-400 hover:text-white"
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "text-slate-600 hover:text-slate-900"
                 }`}
               >
                 <ClipboardPaste className="w-3.5 h-3.5" />
@@ -290,7 +290,7 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
                 stopCamera();
                 onClose();
               }}
-              className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition"
+              className="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition"
             >
               <X className="w-5 h-5" />
             </button>
@@ -352,38 +352,38 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
             <div
               onClick={() => fileInputRef.current?.click()}
               className={`w-full h-full flex flex-col items-center justify-center p-8 text-center cursor-pointer transition ${
-                isDragging ? "bg-indigo-600/20 border-2 border-indigo-400" : "hover:bg-slate-950/60"
+                isDragging ? "bg-blue-50/60 border-2 border-blue-400" : "bg-slate-50 hover:bg-slate-100/70"
               }`}
             >
-              <div className="w-20 h-20 rounded-2xl bg-indigo-600/10 border border-indigo-500/30 flex items-center justify-center mb-4 text-indigo-400 shadow-xl">
-                <Upload className="w-9 h-9" />
+              <div className="w-16 h-16 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center mb-4 text-blue-600 shadow-sm">
+                <Upload className="w-8 h-8" />
               </div>
 
-              <h4 className="text-lg font-bold text-white tracking-tight">
+              <h4 className="text-lg font-bold text-slate-800 tracking-tight">
                 Tarik & Lepas Foto KTP ke Sini
               </h4>
-              <p className="mt-1 text-xs text-slate-400 max-w-sm">
+              <p className="mt-1 text-xs text-slate-500 max-w-sm">
                 Atau klik untuk memilih berkas dari komputer (JPEG, PNG, WebP)
               </p>
 
-              <div className="mt-5 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300">
-                <ClipboardPaste className="w-4 h-4 text-indigo-400" />
-                <span>Tips Desktop: Tekan <kbd className="px-1.5 py-0.5 bg-slate-800 rounded font-mono text-white">Ctrl + V</kbd> untuk paste gambar langsung</span>
+              <div className="mt-5 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-600 shadow-sm">
+                <ClipboardPaste className="w-4 h-4 text-blue-600" />
+                <span>Tips Desktop: Tekan <kbd className="px-1.5 py-0.5 bg-slate-100 rounded font-mono text-slate-700 border border-slate-200">Ctrl + V</kbd> untuk paste gambar langsung</span>
               </div>
             </div>
           )}
 
           {/* Processing Indicator Overlay */}
           {isProcessing && (
-            <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 z-30 animate-in fade-in">
+            <div className="absolute inset-0 bg-white/95 backdrop-blur-md flex flex-col items-center justify-center p-6 z-30 animate-in fade-in">
               <div className="relative">
-                <div className="w-16 h-16 rounded-full border-4 border-indigo-500/20 border-t-indigo-500 animate-spin" />
-                <Sparkles className="w-6 h-6 text-indigo-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+                <div className="w-16 h-16 rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin" />
+                <Sparkles className="w-6 h-6 text-blue-600 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
               </div>
-              <h4 className="mt-4 text-base font-bold text-white tracking-tight">
+              <h4 className="mt-4 text-base font-bold text-slate-800 tracking-tight">
                 Mengekstrak Data KTP dengan AI...
               </h4>
-              <p className="mt-1 text-xs text-indigo-300 text-center max-w-sm">
+              <p className="mt-1 text-xs text-blue-600 text-center max-w-sm font-medium">
                 {processingStatus}
               </p>
             </div>
@@ -391,7 +391,7 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
 
           {/* Error Message Toast */}
           {cameraError && !isProcessing && (
-            <div className="absolute bottom-4 left-4 right-4 bg-rose-500/90 text-white p-3 rounded-xl border border-rose-400 shadow-xl flex items-center justify-between text-xs z-30">
+            <div className="absolute bottom-4 left-4 right-4 bg-rose-500 text-white p-3 rounded-xl border border-rose-400 shadow-xl flex items-center justify-between text-xs z-30">
               <div className="flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{cameraError}</span>
@@ -406,7 +406,7 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
         </div>
 
         {/* Controls & Action Bar */}
-        <div className="p-4 bg-slate-900 border-t border-slate-800 flex items-center justify-between gap-3">
+        <div className="p-4 bg-white border-t border-slate-100 flex items-center justify-between gap-3">
           <input
             type="file"
             ref={fileInputRef}
@@ -421,9 +421,9 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={isProcessing}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 transition"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-200/80 transition"
           >
-            <Upload className="w-4 h-4 text-indigo-400" />
+            <Upload className="w-4 h-4 text-blue-600" />
             <span>Pilih Berkas</span>
           </button>
 
@@ -431,7 +431,7 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
             <button
               onClick={handleRetake}
               disabled={isProcessing}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold border border-slate-700 transition"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-200/80 transition"
             >
               <RotateCcw className="w-4 h-4" />
               <span>Ambil Ulang</span>
@@ -440,7 +440,7 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
             <button
               onClick={handleCapturePhoto}
               disabled={!cameraActive || isProcessing}
-              className="flex items-center gap-2 px-7 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white text-sm font-bold shadow-lg shadow-indigo-600/30 transition disabled:opacity-40"
+              className="flex items-center gap-2 px-7 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-md shadow-blue-500/20 transition disabled:opacity-40"
             >
               <Camera className="w-4 h-4" />
               <span>Ambil Foto KTP</span>
@@ -456,7 +456,7 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
               }}
               disabled={!cameraActive || isProcessing}
               title="Ganti Sensor Kamera"
-              className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition"
+              className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80 transition"
             >
               <RefreshCw className="w-4 h-4" />
             </button>

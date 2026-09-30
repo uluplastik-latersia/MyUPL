@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { AlertCircle, Clock, Calendar, ArrowRight, User, Search, Filter, CheckCircle2 } from "lucide-react";
+import { AlertCircle, Clock, Calendar, ArrowRight, User, Search, CheckCircle2 } from "lucide-react";
 import type { ExpiringContractAlert } from "../../types";
 import { formatDateIndo } from "../../lib/utils";
 
@@ -40,101 +40,100 @@ export const ContractAlerts: React.FC<ContractAlertsProps> = ({
 
   if (allAlerts.length === 0) {
     return (
-      <div className="glass-panel rounded-2xl p-6 border-emerald-500/20 bg-emerald-500/[0.02] flex items-center justify-between">
+      <div className="bg-white rounded-3xl p-6 border border-emerald-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex items-center justify-between">
         <div className="flex items-center gap-3.5">
-          <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            <CheckCircle2 className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <CheckCircle2 className="w-5 h-5" />
           </div>
           <div>
-            <h4 className="text-sm font-bold text-white tracking-tight">Status Kepatuhan Kontrak PKWT Aman</h4>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Tidak ada masa kerja kontrak karyawan yang akan berakhir dalam 60 hari ke depan. Semua status hubungan kerja terkendali.
+            <h4 className="text-sm font-bold text-slate-900 tracking-tight">Status Kontrak PKWT Aman</h4>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Tidak ada masa kerja kontrak karyawan yang akan berakhir dalam 60 hari ke depan.
             </p>
           </div>
         </div>
-        <div className="hidden lg:flex items-center gap-2 text-xs font-mono text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20">
-          <span>0 Notifikasi Aktif</span>
-        </div>
+        <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+          Semua Kontrak Terkendali
+        </span>
       </div>
     );
   }
 
   return (
-    <div className="glass-panel rounded-2xl p-5 sm:p-6 border-slate-800 space-y-4">
-      {/* Header with Title and Filter Tabs */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-3 border-b border-slate-800/80">
+    <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-4">
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-3 border-b border-slate-100">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 shrink-0">
+          <div className="w-10 h-10 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0">
             <AlertCircle className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base font-bold text-white tracking-tight">
-                Pusat Peringatan Kontrak PKWT
+              <h3 className="text-base font-bold text-slate-900 tracking-tight">
+                Peringatan Kontrak PKWT Karyawan
               </h3>
-              <span className="text-[11px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full">
+              <span className="text-xs font-bold bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">
                 {allAlerts.length} Karyawan
               </span>
             </div>
-            <p className="text-xs text-slate-400">
-              Evaluasi perpanjangan kontrak, kenaikan menjadi PKWTT, atau penyelesaian hak kerja
+            <p className="text-xs text-slate-500">
+              Evaluasi perpanjangan kontrak, pengangkatan PKWTT, atau penyelesaian hak kerja
             </p>
           </div>
         </div>
 
-        {/* Filter Controls (Tabs + Mini Search) */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          {/* Search Box */}
+        {/* Filter Tabs matching Candidate pills from Image 1 */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Mini Search */}
           <div className="relative">
-            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari nama karyawan..."
-              className="bg-slate-950/80 border border-slate-700/80 rounded-lg pl-8 pr-3 py-1 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 w-44 lg:w-52"
+              placeholder="Cari karyawan..."
+              className="bg-slate-50 border border-slate-200 rounded-full pl-8 pr-3 py-1.5 text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:border-blue-500 w-44"
             />
           </div>
 
-          {/* Filter Pills */}
-          <div className="flex items-center bg-slate-950/80 p-0.5 rounded-lg border border-slate-800">
+          <div className="flex items-center gap-1.5">
             <button
               onClick={() => setFilterType("all")}
-              className={`px-2.5 py-1 rounded-md text-xs font-semibold transition ${
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition ${
                 filterType === "all"
-                  ? "bg-indigo-600 text-white shadow-sm"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
               Semua ({allAlerts.length})
             </button>
             <button
               onClick={() => setFilterType("critical")}
-              className={`px-2.5 py-1 rounded-md text-xs font-semibold transition flex items-center gap-1 ${
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition flex items-center gap-1 ${
                 filterType === "critical"
                   ? "bg-rose-600 text-white shadow-sm"
-                  : "text-rose-400 hover:text-rose-300"
+                  : "bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200"
               }`}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
               &lt;30 Hari ({expiring30Days.length})
             </button>
             <button
               onClick={() => setFilterType("warning")}
-              className={`px-2.5 py-1 rounded-md text-xs font-semibold transition flex items-center gap-1 ${
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition flex items-center gap-1 ${
                 filterType === "warning"
-                  ? "bg-amber-600 text-white shadow-sm"
-                  : "text-amber-400 hover:text-amber-300"
+                  ? "bg-orange-500 text-white shadow-sm"
+                  : "bg-orange-50 text-orange-700 hover:bg-orange-100 border border-orange-200"
               }`}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
               30-60 Hari ({expiring60Days.length})
             </button>
           </div>
         </div>
       </div>
 
-      {/* Grid of Alert Cards - Desktop Optimized */}
+      {/* Grid of Alert Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
         {displayedAlerts.map((emp) => {
           const isCritical = emp.daysLeft <= 30;
@@ -142,42 +141,42 @@ export const ContractAlerts: React.FC<ContractAlertsProps> = ({
             <div
               key={emp.id}
               onClick={() => onSelectEmployee(emp.id)}
-              className={`p-4 rounded-xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group hover:shadow-lg ${
+              className={`p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between hover:shadow-md ${
                 isCritical
-                  ? "bg-rose-500/[0.04] border-rose-500/25 hover:border-rose-500/60 hover:bg-rose-500/[0.08]"
-                  : "bg-amber-500/[0.04] border-amber-500/25 hover:border-amber-500/60 hover:bg-amber-500/[0.08]"
+                  ? "bg-rose-50/50 border-rose-200 hover:border-rose-300"
+                  : "bg-orange-50/50 border-orange-200 hover:border-orange-300"
               }`}
             >
               <div>
                 <div className="flex items-start justify-between gap-2 mb-1.5">
-                  <span className="font-bold text-sm text-white group-hover:text-indigo-300 transition truncate">
+                  <span className="font-bold text-sm text-slate-900 truncate">
                     {emp.fullName}
                   </span>
                   <span
-                    className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full shrink-0 shadow-sm ${
+                    className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full shrink-0 ${
                       isCritical
-                        ? "bg-rose-500/20 text-rose-300 border border-rose-500/40"
-                        : "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                        ? "bg-rose-100 text-rose-700 border border-rose-200"
+                        : "bg-orange-100 text-orange-700 border border-orange-200"
                     }`}
                   >
                     {emp.daysLeft === 0 ? "Hari ini!" : `${emp.daysLeft} hari`}
                   </span>
                 </div>
 
-                <div className="text-xs text-slate-300 font-medium">
+                <div className="text-xs text-slate-700 font-medium">
                   {emp.position}
                 </div>
-                <div className="text-[11px] text-slate-400 mt-0.5">
+                <div className="text-[11px] text-slate-500 mt-0.5">
                   {emp.departmentName || "Departemen General"}
                 </div>
               </div>
 
-              <div className="mt-3.5 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-xs">
-                <div className="flex items-center gap-1.5 font-mono text-[11px] text-slate-400">
-                  <Calendar className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+              <div className="mt-3.5 pt-2.5 border-t border-slate-200/60 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-1.5 font-mono text-[11px] text-slate-500">
+                  <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                   <span>{formatDateIndo(emp.endContractDate)}</span>
                 </div>
-                <div className="flex items-center gap-1 text-indigo-400 font-semibold group-hover:translate-x-0.5 transition-transform text-[11px]">
+                <div className="flex items-center gap-1 text-blue-600 font-semibold text-[11px] hover:translate-x-0.5 transition-transform">
                   <span>Detail</span>
                   <ArrowRight className="w-3 h-3" />
                 </div>

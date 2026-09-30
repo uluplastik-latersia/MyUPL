@@ -4,41 +4,55 @@
 
 @layer base {
   :root {
-    --brand-primary: #4F46E5;
-    --brand-dark: #1E293B;
+    --brand-primary: #2563EB;
+    --app-bg: #F4F6FB;
   }
 
   body {
-    background-color: #0B0F19;
-    color: #F1F5F9;
+    background-color: #F4F6FB;
+    color: #1E293B;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
-  /* Custom subtle scrollbar */
+  /* Custom clean light scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #0F172A;
+    background: #F1F5F9;
   }
   ::-webkit-scrollbar-thumb {
-    background: #334155;
+    background: #CBD5E1;
     border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #475569;
+    background: #94A3B8;
   }
 }
 
+.card-white {
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.card-white-hover {
+  transition: all 0.2s ease-in-out;
+}
+.card-white-hover:hover {
+  border-color: #CBD5E1;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.06);
+}
+
+/* Backward compatibility for previous classes */
 .glass-panel {
-  background: rgba(30, 41, 59, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
 }
 
 .glass-panel-hover:hover {
-  border-color: rgba(99, 102, 241, 0.35);
-  box-shadow: 0 4px 20px -2px rgba(79, 70, 229, 0.15);
+  border-color: #CBD5E1;
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.07);
 }
