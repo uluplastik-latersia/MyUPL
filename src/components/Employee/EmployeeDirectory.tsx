@@ -13,7 +13,7 @@ import {
   Calendar,
   AlertCircle,
 } from "lucide-react";
-import type { Employee, Department } from "../../types";
+import type { Employee, Department, EmploymentStatus } from "../../types";
 import { formatDateIndo, exportEmployeesToCsv } from "../../lib/utils";
 
 interface EmployeeDirectoryProps {
@@ -93,44 +93,21 @@ export const EmployeeDirectory: React.FC<EmployeeDirectoryProps> = ({
   }, [filteredEmployees, currentPage, itemsPerPage]);
 
   // Status Pill Helper matching Image 1
-  const renderStatusPill = (status: string) => {
-    switch (status) {
-      case "TETAP":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            Hired (Tetap)
-          </span>
-        );
-      case "KONTRAK":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-orange-50 text-orange-700 border border-orange-200">
-            <span className="w-2 h-2 rounded-full bg-orange-500" />
-            Interview (PKWT)
-          </span>
-        );
-      case "HARIAN":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-            <span className="w-2 h-2 rounded-full bg-blue-500" />
-            Screening (Harian)
-          </span>
-        );
-      case "MAGANG":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200">
-            <span className="w-2 h-2 rounded-full bg-purple-500" />
-            Psikotes (Magang)
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
-            <span className="w-2 h-2 rounded-full bg-rose-500" />
-            Non-Aktif
-          </span>
-        );
+  const renderStatusPill = (status: EmploymentStatus | string) => {
+    if (status === "PKWTT" || status === "TETAP") {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <span className="w-2 h-2 rounded-full bg-emerald-500" />
+          PKWTT (Tetap)
+        </span>
+      );
     }
+    return (
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+        <span className="w-2 h-2 rounded-full bg-blue-500" />
+        PKWT (Kontrak)
+      </span>
+    );
   };
 
   return (
@@ -179,63 +156,35 @@ export const EmployeeDirectory: React.FC<EmployeeDirectoryProps> = ({
                 : "bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50"
             }`}
           >
-            All Candidates
+            All Candidates ({employees.length})
           </button>
 
           <button
             onClick={() => {
-              setActiveTabFilter("TETAP");
+              setActiveTabFilter("PKWT");
               setCurrentPage(1);
             }}
             className={`px-4 py-2 rounded-full text-xs font-medium transition ${
-              activeTabFilter === "TETAP"
+              activeTabFilter === "PKWT"
                 ? "bg-blue-600 text-white font-bold shadow-blue-500/25"
                 : "bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50"
             }`}
           >
-            Tetap (PKWTT)
+            PKWT (Kontrak)
           </button>
 
           <button
             onClick={() => {
-              setActiveTabFilter("KONTRAK");
+              setActiveTabFilter("PKWTT");
               setCurrentPage(1);
             }}
             className={`px-4 py-2 rounded-full text-xs font-medium transition ${
-              activeTabFilter === "KONTRAK"
+              activeTabFilter === "PKWTT"
                 ? "bg-blue-600 text-white font-bold shadow-blue-500/25"
                 : "bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50"
             }`}
           >
-            Kontrak (PKWT)
-          </button>
-
-          <button
-            onClick={() => {
-              setActiveTabFilter("HARIAN");
-              setCurrentPage(1);
-            }}
-            className={`px-4 py-2 rounded-full text-xs font-medium transition ${
-              activeTabFilter === "HARIAN"
-                ? "bg-blue-600 text-white font-bold shadow-blue-500/25"
-                : "bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50"
-            }`}
-          >
-            Harian Lepas
-          </button>
-
-          <button
-            onClick={() => {
-              setActiveTabFilter("MAGANG");
-              setCurrentPage(1);
-            }}
-            className={`px-4 py-2 rounded-full text-xs font-medium transition ${
-              activeTabFilter === "MAGANG"
-                ? "bg-blue-600 text-white font-bold shadow-blue-500/25"
-                : "bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50"
-            }`}
-          >
-            Magang / Intern
+            PKWTT (Tetap)
           </button>
         </div>
 

@@ -24,9 +24,11 @@ export const employees = sqliteTable(
       .notNull()
       .references(() => departments.id, { onDelete: "restrict" }),
     position: text("position").notNull(),
-    employmentStatus: text("employment_status", {
-      enum: ["TETAP", "KONTRAK", "HARIAN", "MAGANG"],
-    }).notNull(),
+    employmentStatus: text("employment_status").notNull(), // PKWT | PKWTT
+    salary: integer("salary"),
+    payrollSystem: text("payroll_system"), // Harian | Borongan | Bulanan
+    bpjsKesehatan: text("bpjs_kesehatan"), // BP PEMDA | PBPU | PBI JK | NON
+    bpjsKetenagakerjaan: text("bpjs_ketenagakerjaan"), // AKTIF | NON AKTIF
     joinDate: text("join_date").notNull(), // YYYY-MM-DD
     endContractDate: text("end_contract_date"), // YYYY-MM-DD, nullable
     isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),

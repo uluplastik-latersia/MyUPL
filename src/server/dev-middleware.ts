@@ -77,6 +77,10 @@ export function devApiPlugin() {
                   departmentName: departments.name,
                   position: employees.position,
                   employmentStatus: employees.employmentStatus,
+                  salary: employees.salary,
+                  payrollSystem: employees.payrollSystem,
+                  bpjsKesehatan: employees.bpjsKesehatan,
+                  bpjsKetenagakerjaan: employees.bpjsKetenagakerjaan,
                   joinDate: employees.joinDate,
                   endContractDate: employees.endContractDate,
                   isActive: employees.isActive,
@@ -127,6 +131,10 @@ export function devApiPlugin() {
                 departmentId: data.departmentId,
                 position: data.position.toUpperCase().trim(),
                 employmentStatus: data.employmentStatus,
+                salary: data.salary !== undefined && data.salary !== null && data.salary !== "" ? Number(data.salary) : null,
+                payrollSystem: data.payrollSystem || null,
+                bpjsKesehatan: data.bpjsKesehatan || null,
+                bpjsKetenagakerjaan: data.bpjsKetenagakerjaan || null,
                 joinDate: data.joinDate,
                 endContractDate: data.endContractDate || null,
                 isActive: data.isActive ?? true,
@@ -163,6 +171,10 @@ export function devApiPlugin() {
                   departmentId: body.departmentId || undefined,
                   position: body.position?.toUpperCase().trim() || undefined,
                   employmentStatus: body.employmentStatus || undefined,
+                  salary: body.salary !== undefined ? (body.salary !== null && body.salary !== "" ? Number(body.salary) : null) : undefined,
+                  payrollSystem: body.payrollSystem !== undefined ? body.payrollSystem : undefined,
+                  bpjsKesehatan: body.bpjsKesehatan !== undefined ? body.bpjsKesehatan : undefined,
+                  bpjsKetenagakerjaan: body.bpjsKetenagakerjaan !== undefined ? body.bpjsKetenagakerjaan : undefined,
                   joinDate: body.joinDate || undefined,
                   endContractDate: body.endContractDate !== undefined ? body.endContractDate || null : undefined,
                   isActive: body.isActive !== undefined ? body.isActive : undefined,
@@ -225,10 +237,8 @@ export function devApiPlugin() {
             };
             const departmentStats: Record<string, number> = {};
             const statusStats: Record<string, number> = {
-              TETAP: 0,
-              KONTRAK: 0,
-              HARIAN: 0,
-              MAGANG: 0,
+              PKWT: 0,
+              PKWTT: 0,
             };
 
             const expiringContracts30: any[] = [];
@@ -240,8 +250,13 @@ export function devApiPlugin() {
                 if (emp.gender === "PEREMPUAN") genderStats["PEREMPUAN"]++;
                 else genderStats["LAKI-LAKI"]++;
 
-                if (statusStats[emp.employmentStatus] !== undefined) {
-                  statusStats[emp.employmentStatus]++;
+                let sKey = emp.employmentStatus;
+                if (sKey === "TETAP") sKey = "PKWTT";
+                if (sKey === "KONTRAK") sKey = "PKWT";
+                if (statusStats[sKey] !== undefined) {
+                  statusStats[sKey]++;
+                } else {
+                  statusStats[sKey] = 1;
                 }
 
                 const dName = emp.departmentName || "General";
@@ -273,7 +288,7 @@ export function devApiPlugin() {
                   }
                 }
 
-                if (emp.endContractDate && emp.employmentStatus === "KONTRAK") {
+                if (emp.endContractDate && (emp.employmentStatus === "PKWT" || emp.employmentStatus === "KONTRAK")) {
                   const endDate = new Date(emp.endContractDate);
                   const diffDays = Math.ceil(
                     (endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)

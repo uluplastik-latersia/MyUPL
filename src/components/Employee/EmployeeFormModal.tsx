@@ -1,6 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { X, Save, AlertCircle, Building2, User, CreditCard } from "lucide-react";
-import type { Employee, Department, Gender, EmploymentStatus } from "../../types";
+import React, { useState, useEffect, useMemo } from "react";
+import { X, Save, AlertCircle, Building2, User, CreditCard, DollarSign, Shield } from "lucide-react";
+import type { Employee, Department, Gender, EmploymentStatus, PayrollSystem, BpjsKesehatan, BpjsKetenagakerjaan } from "../../types";
+import {
+  MASTER_DEPARTMENTS,
+  PAYROLL_SYSTEMS,
+  EMPLOYMENT_STATUSES,
+  BPJS_KESEHATAN_OPTIONS,
+  BPJS_KETENAGAKERJAAN_OPTIONS,
+  getPositionsByDepartment,
+} from "../../lib/departments";
 
 interface EmployeeFormModalProps {
   isOpen: boolean;
@@ -27,9 +35,13 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
     address: "",
     religion: "ISLAM",
     maritalStatus: "BELUM KAWIN",
-    departmentId: "",
-    position: "",
-    employmentStatus: "TETAP",
+    departmentId: MASTER_DEPARTMENTS[0].id,
+    position: MASTER_DEPARTMENTS[0].positions[0],
+    employmentStatus: "PKWT",
+    salary: 0,
+    payrollSystem: "Harian",
+    bpjsKesehatan: "NON",
+    bpjsKetenagakerjaan: "AKTIF",
     joinDate: new Date().toISOString().split("T")[0],
     endContractDate: "",
     isActive: true,
@@ -37,6 +49,11 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  // Get positions available for current selected department
+  const currentPositions = useMemo(() => {
+    return getPositionsByDepartment(formData.departmentId);
+  }, [formData.departmentId]);
 
   useEffect(() => {
     if (initialData) {
@@ -47,6 +64,11 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
         address: initialData.address || "",
         religion: initialData.religion || "ISLAM",
         maritalStatus: initialData.maritalStatus || "BELUM KAWIN",
+        employmentStatus: initialData.employmentStatus === "PKWTT" ? "PKWTT" : "PKWT",
+        salary: initialData.salary || 0,
+        payrollSystem: initialData.payrollSystem || "Harian",
+        bpjsKesehatan: initialData.bpjsKesehatan || "NON",
+        bpjsKetenagakerjaan: initialData.bpjsKetenagakerjaan || "AKTIF",
         endContractDate: initialData.endContractDate || "",
       });
     } else {
@@ -60,9 +82,13 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
         address: "",
         religion: "ISLAM",
         maritalStatus: "BELUM KAWIN",
-        departmentId: departments[0]?.id || "",
-        position: "",
-        employmentStatus: "TETAP",
+        departmentId: MASTER_DEPARTMENTS[0].id,
+        position: MASTER_DEPARTMENTS[0].positions[0],
+        employmentStatus: "PKWT",
+        salary: 0,
+        payrollSystem: "Harian",
+        bpjsKesehatan: "NON",
+        bpjsKetenagakerjaan: "AKTIF",
         joinDate: new Date().toISOString().split("T")[0],
         endContractDate: "",
         isActive: true,
@@ -72,6 +98,16 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
   }, [initialData, departments, isOpen]);
 
   if (!isOpen) return null;
+
+  // Handle department change & update default position
+  const handleDepartmentChange = (deptId: string) => {
+    const available = getPositionsByDepartment(deptId);
+    setFormData((prev) => ({
+      ...prev,
+      departmentId: deptId,
+      position: available[0] || "",
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,6 +136,10 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
     }
     if (!formData.joinDate) {
       setErrorMessage("Tanggal mulai kerja (Join Date) wajib diisi.");
+      return;
+    }
+    if (formData.employmentStatus === "PKWT" && !formData.endContractDate) {
+      setErrorMessage("Karyawan status PKWT wajib mengisi tanggal batas akhir kontrak.");
       return;
     }
 
@@ -149,7 +189,7 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
             </div>
           )}
 
-          {/* Section: Identitas KTP */}
+          {/* Section 1: Identitas KTP */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-blue-600 mb-3.5 flex items-center gap-1.5">
               <CreditCard className="w-3.5 h-3.5" />
@@ -197,7 +237,7 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                   type="text"
                   required
                   value={formData.fullName || ""}
-                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value.toUpperCase() })}
                   placeholder="Nama Lengkap Karyawan"
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 uppercase placeholder-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                 />
@@ -239,7 +279,7 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                 <input
                   type="text"
                   value={formData.birthPlace || ""}
-                  onChange={(e) => setFormData({ ...formData, birthPlace: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, birthPlace: e.target.value.toUpperCase() })}
                   placeholder="Kota / Kabupaten Kelahiran"
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                 />
@@ -286,7 +326,7 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                 <textarea
                   rows={2}
                   value={formData.address || ""}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value.toUpperCase() })}
                   placeholder="Alamat, RT/RW, Kelurahan, Kecamatan, Kota"
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                 />
@@ -294,25 +334,25 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
             </div>
           </div>
 
-          {/* Section: Hubungan & Penempatan Kerja */}
+          {/* Section 2: Data Penempatan Kerja & Spesifikasi Posisi */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-600 mb-3.5 flex items-center gap-1.5">
               <Building2 className="w-3.5 h-3.5" />
-              2. Data Penempatan & Hubungan Kerja
+              2. Data Penempatan & Posisi Jabatan
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Departemen / Divisi (Sesuai File Upload) */}
               <div>
                 <label className="text-xs font-semibold text-slate-700 block mb-1.5">
                   Departemen / Divisi *
                 </label>
                 <select
                   required
-                  value={formData.departmentId || ""}
-                  onChange={(e) => setFormData({ ...formData, departmentId: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                  value={formData.departmentId || MASTER_DEPARTMENTS[0].id}
+                  onChange={(e) => handleDepartmentChange(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 font-semibold focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                 >
-                  <option value="">Pilih Departemen</option>
-                  {departments.map((dept) => (
+                  {MASTER_DEPARTMENTS.map((dept) => (
                     <option key={dept.id} value={dept.id}>
                       {dept.name}
                     </option>
@@ -320,26 +360,32 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                 </select>
               </div>
 
+              {/* Posisi / Jabatan (Sesuai File Upload) */}
               <div>
                 <label className="text-xs font-semibold text-slate-700 block mb-1.5">
                   Posisi / Jabatan *
                 </label>
-                <input
-                  type="text"
+                <select
                   required
                   value={formData.position || ""}
                   onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                  placeholder="Misal: Senior Developer, Staff Logistik"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
-                />
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 font-medium focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                >
+                  {currentPositions.map((pos) => (
+                    <option key={pos} value={pos}>
+                      {pos}
+                    </option>
+                  ))}
+                </select>
               </div>
 
+              {/* Status Hubungan Kerja: [PKWT; PKWTT] */}
               <div>
                 <label className="text-xs font-semibold text-slate-700 block mb-1.5">
                   Status Hubungan Kerja *
                 </label>
                 <select
-                  value={formData.employmentStatus || "TETAP"}
+                  value={formData.employmentStatus || "PKWT"}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
@@ -348,13 +394,12 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                   }
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                 >
-                  <option value="TETAP">TETAP (PKWTT)</option>
-                  <option value="KONTRAK">KONTRAK (PKWT)</option>
-                  <option value="HARIAN">HARIAN LEPAS</option>
-                  <option value="MAGANG">MAGANG / INTERNSHIP</option>
+                  <option value="PKWT">PKWT (Perjanjian Kerja Waktu Tertentu)</option>
+                  <option value="PKWTT">PKWTT (Perjanjian Kerja Waktu Tidak Tertentu)</option>
                 </select>
               </div>
 
+              {/* Tanggal Masuk Kerja (Join Date) */}
               <div>
                 <label className="text-xs font-semibold text-slate-700 block mb-1.5">
                   Tanggal Masuk Kerja (Join Date) *
@@ -368,8 +413,9 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                 />
               </div>
 
-              {formData.employmentStatus === "KONTRAK" && (
-                <div>
+              {/* Batas Akhir Kontrak PKWT (jika PKWT) */}
+              {formData.employmentStatus === "PKWT" && (
+                <div className="sm:col-span-2">
                   <label className="text-xs font-semibold text-amber-600 block mb-1.5">
                     Batas Akhir Kontrak PKWT (End Date) *
                   </label>
@@ -384,8 +430,108 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                   />
                 </div>
               )}
+            </div>
+          </div>
 
-              <div className="flex items-center gap-3 pt-6">
+          {/* Section 3: Kompensasi & BPJS */}
+          <div>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-blue-600 mb-3.5 flex items-center gap-1.5">
+              <DollarSign className="w-3.5 h-3.5" />
+              3. Penggajian & Jaminan Sosial (BPJS)
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Masukan Gaji */}
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
+                  Nominal Gaji / Upah (Rp) *
+                </label>
+                <div className="relative flex items-center">
+                  <span className="absolute left-3.5 text-xs font-bold text-slate-400">Rp</span>
+                  <input
+                    type="number"
+                    min={0}
+                    step={1000}
+                    value={formData.salary ?? 0}
+                    onChange={(e) =>
+                      setFormData({ ...formData, salary: parseInt(e.target.value) || 0 })
+                    }
+                    placeholder="Contoh: 3500000"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-sm text-slate-800 font-mono focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                  />
+                </div>
+              </div>
+
+              {/* Sistem Penggajian: [Harian; Borongan; Bulanan] */}
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
+                  Sistem Penggajian *
+                </label>
+                <select
+                  value={formData.payrollSystem || "Harian"}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      payrollSystem: e.target.value as PayrollSystem,
+                    })
+                  }
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                >
+                  {PAYROLL_SYSTEMS.map((sys) => (
+                    <option key={sys} value={sys}>
+                      {sys}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* BPJS KESEHATAN: [BP PEMDA; PBPU; PBI JK; NON] */}
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
+                  BPJS Kesehatan *
+                </label>
+                <select
+                  value={formData.bpjsKesehatan || "NON"}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      bpjsKesehatan: e.target.value as BpjsKesehatan,
+                    })
+                  }
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                >
+                  {BPJS_KESEHATAN_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* BPJS TENAGA KERJA: [AKTIF; NON AKTIF] */}
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
+                  BPJS Ketenagakerjaan *
+                </label>
+                <select
+                  value={formData.bpjsKetenagakerjaan || "AKTIF"}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      bpjsKetenagakerjaan: e.target.value as BpjsKetenagakerjaan,
+                    })
+                  }
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                >
+                  {BPJS_KETENAGAKERJAAN_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Status Aktif Bekerja */}
+              <div className="sm:col-span-2 flex items-center gap-3 pt-2">
                 <input
                   type="checkbox"
                   id="isActiveToggle"

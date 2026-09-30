@@ -1,5 +1,8 @@
 export type Gender = "LAKI-LAKI" | "PEREMPUAN";
-export type EmploymentStatus = "TETAP" | "KONTRAK" | "HARIAN" | "MAGANG";
+export type EmploymentStatus = "PKWT" | "PKWTT";
+export type PayrollSystem = "Harian" | "Borongan" | "Bulanan";
+export type BpjsKesehatan = "BP PEMDA" | "PBPU" | "PBI JK" | "NON";
+export type BpjsKetenagakerjaan = "AKTIF" | "NON AKTIF";
 
 export interface Department {
   id: string;
@@ -22,6 +25,10 @@ export interface Employee {
   departmentName?: string | null;
   position: string;
   employmentStatus: EmploymentStatus;
+  salary?: number | null;
+  payrollSystem?: PayrollSystem | null;
+  bpjsKesehatan?: BpjsKesehatan | null;
+  bpjsKetenagakerjaan?: BpjsKetenagakerjaan | null;
   joinDate: string; // YYYY-MM-DD
   endContractDate?: string | null; // YYYY-MM-DD
   isActive: boolean;

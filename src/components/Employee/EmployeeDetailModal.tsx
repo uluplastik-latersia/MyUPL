@@ -123,7 +123,7 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
               <Briefcase className="w-3.5 h-3.5 text-blue-600" />
-              Status Pekerjaan & Kontrak
+              Status Pekerjaan & Sistem Penggajian
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-200/80">
               <div>
@@ -139,16 +139,76 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
               </div>
 
               <div>
+                <span className="text-[11px] text-slate-400 block font-medium">Status Hubungan Kerja</span>
+                <span className="text-sm font-bold text-blue-600">
+                  {employee.employmentStatus === "PKWT"
+                    ? "PKWT (Perjanjian Kerja Waktu Tertentu)"
+                    : employee.employmentStatus === "PKWTT"
+                    ? "PKWTT (Tetap / Permanen)"
+                    : employee.employmentStatus}
+                </span>
+              </div>
+
+              <div>
+                <span className="text-[11px] text-slate-400 block font-medium">Sistem Penggajian</span>
+                <span className="text-sm font-semibold text-slate-800">
+                  {employee.payrollSystem || "Bulanan"}
+                </span>
+              </div>
+
+              <div>
+                <span className="text-[11px] text-slate-400 block font-medium">Gaji / Upah</span>
+                <span className="text-sm font-mono font-bold text-emerald-600">
+                  {employee.salary
+                    ? new Intl.NumberFormat("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                        maximumFractionDigits: 0,
+                      }).format(employee.salary)
+                    : "Rp 0"}
+                </span>
+              </div>
+
+              <div>
                 <span className="text-[11px] text-slate-400 block font-medium">Tanggal Masuk (Join Date)</span>
                 <span className="text-sm font-mono text-slate-800">
                   {formatDateIndo(employee.joinDate)}
                 </span>
               </div>
 
-              <div>
+              <div className="sm:col-span-2">
                 <span className="text-[11px] text-slate-400 block font-medium">Akhir Masa Kontrak (PKWT)</span>
                 <span className="text-sm font-mono font-bold text-orange-600">
                   {employee.endContractDate ? formatDateIndo(employee.endContractDate) : "Permanen (PKWTT)"}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Section: BPJS & Perlindungan Tenaga Kerja */}
+          <div>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
+              Jaminan Sosial & BPJS
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-200/80">
+              <div>
+                <span className="text-[11px] text-slate-400 block font-medium">BPJS KESEHATAN</span>
+                <span className="inline-block mt-1 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                  {employee.bpjsKesehatan || "BP PEMDA"}
+                </span>
+              </div>
+
+              <div>
+                <span className="text-[11px] text-slate-400 block font-medium">BPJS TENAGA KERJA</span>
+                <span
+                  className={`inline-block mt-1 px-3 py-1 rounded-full text-xs font-bold ${
+                    employee.bpjsKetenagakerjaan === "AKTIF"
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                      : "bg-slate-100 text-slate-600 border border-slate-200"
+                  }`}
+                >
+                  {employee.bpjsKetenagakerjaan || "AKTIF"}
                 </span>
               </div>
             </div>

@@ -16,10 +16,12 @@ interface EmploymentStatusChartProps {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  TETAP: "#2563EB", // Vibrant Blue
-  KONTRAK: "#F59E0B", // Amber
-  HARIAN: "#06B6D4", // Cyan
-  MAGANG: "#8B5CF6", // Purple
+  PKWTT: "#2563EB", // Vibrant Blue
+  PKWT: "#F59E0B", // Amber
+  TETAP: "#2563EB",
+  KONTRAK: "#F59E0B",
+  HARIAN: "#06B6D4",
+  MAGANG: "#8B5CF6",
 };
 
 export const EmploymentStatusChart: React.FC<EmploymentStatusChartProps> = ({ data }) => {
@@ -32,7 +34,7 @@ export const EmploymentStatusChart: React.FC<EmploymentStatusChartProps> = ({ da
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-900 tracking-tight">Status Hubungan Kerja</h3>
-            <p className="text-[11px] text-slate-400 font-medium">PKWTT, PKWT, Harian & Magang</p>
+            <p className="text-[11px] text-slate-400 font-medium">PKWTT (Tetap) & PKWT (Kontrak)</p>
           </div>
         </div>
       </div>

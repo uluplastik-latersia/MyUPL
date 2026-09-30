@@ -63,10 +63,8 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     };
     const departmentStats: Record<string, number> = {};
     const statusStats: Record<string, number> = {
-      TETAP: 0,
-      KONTRAK: 0,
-      HARIAN: 0,
-      MAGANG: 0,
+      PKWT: 0,
+      PKWTT: 0,
     };
 
     const expiringContracts30: any[] = [];
@@ -81,10 +79,13 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         else genderStats["LAKI-LAKI"]++;
 
         // Status
-        if (statusStats[emp.employmentStatus] !== undefined) {
-          statusStats[emp.employmentStatus]++;
+        let sKey = emp.employmentStatus;
+        if (sKey === "TETAP") sKey = "PKWTT";
+        if (sKey === "KONTRAK") sKey = "PKWT";
+        if (statusStats[sKey] !== undefined) {
+          statusStats[sKey]++;
         } else {
-          statusStats[emp.employmentStatus] = 1;
+          statusStats[sKey] = 1;
         }
 
         // Department
@@ -120,7 +121,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         }
 
         // Expiring Contracts (< 60 days)
-        if (emp.endContractDate && emp.employmentStatus === "KONTRAK") {
+        if (emp.endContractDate && (emp.employmentStatus === "PKWT" || emp.employmentStatus === "KONTRAK")) {
           const endDate = new Date(emp.endContractDate);
           const diffDays = Math.ceil(
             (endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
