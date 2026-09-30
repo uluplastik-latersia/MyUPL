@@ -364,17 +364,43 @@ export function devApiPlugin() {
               base64Data = parts[1];
             }
 
-            const candidateModels = ["gemini-3.8-flash", "gemini-flash-latest", "gemini-2.5-flash-lite"];
+            const candidateModels = [
+              "gemini-3.5-flash-lite",
+              "gemini-3.8-flash",
+              "gemini-3.5-flash",
+              "gemini-flash-lite-latest",
+            ];
+
+            const systemInstruction = `You are a high-precision Indonesian Identity Document (e-KTP & Kartu Keluarga) OCR Engine.
+Extract the text fields from the provided ID card image with maximum accuracy.
+CRITICAL EXTRACTION RULES:
+1. "nik": Must be exactly 16 numeric digits. Correct common OCR mistakes (e.g., letter 'O', 'D' to '0'; 'I', 'l' to '1'; 'B' to '8'; 'S' to '5'). If not visible or invalid, return "".
+2. "no_kk": 16 digits if visible, else "".
+3. "nama": Full legal name in uppercase without typos.
+4. "tempat_lahir": City/Regency of birth.
+5. "tanggal_lahir": Strict ISO format "YYYY-MM-DD". Indonesian dates like "09-09-1997" must be converted to "1997-09-09".
+6. "jenis_kelamin": Must be strictly "LAKI-LAKI" or "PEREMPUAN".
+7. "alamat": Full address (Alamat, RT/RW, Kel/Desa, Kecamatan, Kota/Kabupaten).
+8. "agama": Religion (ISLAM, KRISTEN, KATOLIK, HINDU, BUDDHA, KONGHUCU).
+9. "status_perkawinan": Marital status (BELUM KAWIN, KAWIN, CERAI HIDUP, CERAI MATI).
+10. "pekerjaan": Occupation listed on the card.
+
+OUTPUT REQUIREMENT:
+Return ONLY a valid JSON object matching the JSON schema. Do not enclose in markdown code blocks like \`\`\`json.`;
+
             const payload = {
               contents: [
                 {
                   role: "user",
                   parts: [
-                    { text: "Extract Indonesian e-KTP card into JSON: nik (16 digits), no_kk, nama, tempat_lahir, tanggal_lahir (YYYY-MM-DD), jenis_kelamin (LAKI-LAKI/PEREMPUAN), alamat, agama, status_perkawinan, pekerjaan." },
+                    { text: "Extract all identity information from this Indonesian KTP/KK card into pure JSON schema." },
                     { inlineData: { mimeType, data: base64Data } },
                   ],
                 },
               ],
+              systemInstruction: {
+                parts: [{ text: systemInstruction }],
+              },
               generationConfig: {
                 temperature: 0.1,
                 responseMimeType: "application/json",
@@ -404,7 +430,8 @@ export function devApiPlugin() {
               return sendJson({ success: false, error: `Gemini API: ${lastErr}` }, 502);
             }
 
-            const text = gData?.candidates?.[0]?.content?.parts?.[0]?.text;
+            let text = gData?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+            text = text.replace(/```json\s*/gi, "").replace(/```\s*$/gi, "").trim();
             const parsed = JSON.parse(text);
 
             return sendJson({

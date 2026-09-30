@@ -243,7 +243,7 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
                   Pindai Dokumen Kependudukan (e-KTP / KK)
                 </h3>
                 <span className="text-[10px] bg-blue-50 text-blue-700 font-mono px-2 py-0.5 rounded-full font-bold border border-blue-200">
-                  Gemini 3.8 Flash
+                  Gemini Vision AI
                 </span>
               </div>
               <p className="text-xs text-slate-500">
