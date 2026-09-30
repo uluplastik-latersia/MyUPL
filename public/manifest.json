@@ -1,0 +1,25 @@
+{
+  "name": "MyUPL - Modern HR Dashboard & Employee Management",
+  "short_name": "MyUPL",
+  "description": "Sistem Manajemen Data Karyawan, Onboarding OCR, dan Dashboard Analitik HR Terintegrasi.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0F172A",
+  "theme_color": "#1E293B",
+  "orientation": "any",
+  "categories": ["business", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

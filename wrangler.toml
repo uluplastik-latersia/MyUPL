@@ -1,0 +1,8 @@
+name = "myupl-hr-system"
+compatibility_date = "2024-09-25"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "dist"
+
+[vars]
+# Add non-sensitive variables here. Add secrets using: wrangler pages secret put <KEY>
+APP_NAME = "MyUPL"
