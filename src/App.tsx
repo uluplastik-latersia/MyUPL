@@ -70,7 +70,6 @@ const DEFAULT_CHARTS: AnalyticsData["charts"] = {
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"dashboard" | "directory" | "scanner">("dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [globalSearch, setGlobalSearch] = useState("");
 
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -255,21 +254,20 @@ export const App: React.FC = () => {
         {/* Desktop Top Header Bar */}
         <DesktopHeader
           activeTab={activeTab}
-          globalSearch={globalSearch}
-          setGlobalSearch={(query) => {
-            setGlobalSearch(query);
-            if (query && activeTab !== "directory") {
-              setActiveTab("directory");
-            }
-          }}
           onRefresh={fetchData}
-          onAddNew={() => {
-            setFormInitialData(null);
-            setIsFormModalOpen(true);
-          }}
-          onOpenScanner={() => setIsCameraModalOpen(true)}
-          onExportCsv={() => exportEmployeesToCsv(employees)}
           expiringCount={analytics.metrics.totalExpiring}
+          expiring30Days={analytics.alerts.expiring30Days}
+          expiring60Days={analytics.alerts.expiring60Days}
+          onSelectEmployee={(id) => {
+            const target = employees.find((e) => e.id === id);
+            if (target) setSelectedEmployee(target);
+          }}
+          onViewAllAlerts={() => {
+            setActiveTab("dashboard");
+            setTimeout(() => {
+              document.getElementById("contract-alerts-section")?.scrollIntoView({ behavior: "smooth" });
+            }, 100);
+          }}
         />
 
         {/* System Notice Toast */}
