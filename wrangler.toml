@@ -6,3 +6,4 @@ pages_build_output_dir = "dist"
 [vars]
 # Add non-sensitive variables here. Add secrets using: wrangler pages secret put <KEY>
 APP_NAME = "MyUPL"
+TURSO_DATABASE_URL = "libsql://myupl-uluplastik-latersia.aws-ap-northeast-1.turso.io"
