@@ -33,31 +33,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
         collapsed ? "w-20" : "w-64"
       }`}
     >
-      {/* Top Header & Branding (Req / MyUPL logo) */}
+      {/* Top Header & Branding (MyUPL logo) */}
       <div>
-        <div className="h-18 flex items-center justify-between px-5 py-4 border-b border-slate-100">
+        <div className="h-18 flex items-center justify-between px-4 sm:px-5 py-4 border-b border-slate-100">
           <div
             className="flex items-center gap-3 overflow-hidden cursor-pointer"
             onClick={() => setActiveTab("dashboard")}
           >
-            {/* Geometric Blue Bars Icon matching "Req" */}
-            <div className="flex items-center gap-1 shrink-0">
-              <div className="w-2.5 h-7 bg-blue-600 rounded-full" />
-              <div className="w-2.5 h-5 bg-blue-500 rounded-full mt-2" />
-            </div>
+            <img
+              src="/logo.png"
+              alt="MyUPL Logo"
+              className="h-8 w-auto max-w-[32px] object-contain shrink-0"
+            />
             {!collapsed && (
-              <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-2xl text-slate-900 tracking-tight">Req</span>
-                <span className="text-xs font-bold uppercase bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-md border border-blue-200">
-                  UPL
-                </span>
-              </div>
+              <span className="font-extrabold text-2xl text-black tracking-tight">
+                MyUPL
+              </span>
             )}
           </div>
 
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition"
+            className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition shrink-0"
             title={collapsed ? "Perluas Sidebar" : "Ciutkan Sidebar"}
           >
             {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
