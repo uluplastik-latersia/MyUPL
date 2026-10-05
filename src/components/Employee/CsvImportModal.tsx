@@ -30,6 +30,10 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
   const [parseErrors, setParseErrors] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [failedItems, setFailedItems] = useState<
+    Array<{ name: string; nik: string; reason: string }>
+  >([]);
+  const [successCountTotal, setSuccessCountTotal] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
@@ -38,6 +42,8 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
     setSelectedFile(file);
     setParseErrors([]);
     setParsedData([]);
+    setFailedItems([]);
+    setSuccessCountTotal(null);
 
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -74,8 +80,11 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
     try {
       setIsProcessing(true);
       setProgress(0);
+      setFailedItems([]);
+      setSuccessCountTotal(null);
 
       let successCount = 0;
+      const failures: Array<{ name: string; nik: string; reason: string }> = [];
       const total = parsedData.length;
 
       for (let i = 0; i < total; i++) {
@@ -86,18 +95,48 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(emp),
           });
-          if (res.ok) {
+          const result = (await res.json().catch(() => null)) as any;
+
+          if (res.ok && result?.success) {
             successCount++;
+          } else {
+            const errDetail =
+              result?.error ||
+              (result?.details
+                ? Object.entries(result.details)
+                    .map(([k, v]) => `${k}: ${v}`)
+                    .join(", ")
+                : "Gagal menyimpan baris.");
+            failures.push({
+              name: emp.fullName || `Baris ${i + 1}`,
+              nik: emp.nik || "-",
+              reason: errDetail,
+            });
           }
-        } catch (e) {
-          console.warn("Failed row import:", emp.fullName, e);
+        } catch (e: any) {
+          failures.push({
+            name: emp.fullName || `Baris ${i + 1}`,
+            nik: emp.nik || "-",
+            reason: e.message || "Network error",
+          });
         }
         setProgress(Math.round(((i + 1) / total) * 100));
       }
 
-      onImportSuccess(successCount);
-      handleReset();
-      onClose();
+      setSuccessCountTotal(successCount);
+      setFailedItems(failures);
+
+      if (successCount > 0) {
+        onImportSuccess(successCount);
+      }
+
+      // If all succeeded with no failures, auto close after 1.5 seconds
+      if (failures.length === 0 && successCount > 0) {
+        setTimeout(() => {
+          handleReset();
+          onClose();
+        }, 1500);
+      }
     } catch (err: any) {
       setParseErrors([`Terjadi kesalahan saat menyimpan data: ${err.message}`]);
     } finally {
@@ -109,6 +148,8 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
     setSelectedFile(null);
     setParsedData([]);
     setParseErrors([]);
+    setFailedItems([]);
+    setSuccessCountTotal(null);
     setProgress(0);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -283,6 +324,43 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                   className="bg-blue-600 h-full rounded-full transition-all duration-200"
                   style={{ width: `${progress}%` }}
                 />
+              </div>
+            </div>
+          )}
+          {/* Import Result Feedback */}
+          {successCountTotal !== null && successCountTotal > 0 && failedItems.length === 0 && (
+            <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+              <div>
+                <strong className="block text-emerald-900 font-bold">Import Berhasil!</strong>
+                <span>{successCountTotal} data karyawan baru berhasil disimpan ke database.</span>
+              </div>
+            </div>
+          )}
+
+          {failedItems.length > 0 && (
+            <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1.5">
+              <div className="font-bold flex items-center gap-1.5 text-amber-900">
+                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>
+                  Laporan Hasil: {successCountTotal || 0} Berhasil, {failedItems.length} Gagal
+                </span>
+              </div>
+              <p className="text-[11px] text-amber-800">
+                Berikut baris data yang ditolak oleh sistem:
+              </p>
+              <div className="max-h-32 overflow-y-auto space-y-1 pr-1">
+                {failedItems.map((fail, idx) => (
+                  <div
+                    key={idx}
+                    className="p-2 rounded-xl bg-white/90 border border-amber-200/70 text-[11px] text-slate-700"
+                  >
+                    <div className="font-bold text-slate-900">
+                      {fail.name} (NIK: {fail.nik})
+                    </div>
+                    <div className="text-rose-600 text-[10px] mt-0.5">{fail.reason}</div>
+                  </div>
+                ))}
               </div>
             </div>
           )}

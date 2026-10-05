@@ -1,6 +1,6 @@
 import { getDb } from "@/db/client";
 import { employees, departments } from "@/db/schema";
-import { eq, desc, and, like, or } from "drizzle-orm";
+import { eq, desc, and, like, or, sql } from "drizzle-orm";
 import { z } from "zod";
 
 interface Env {
@@ -116,9 +116,89 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   }
 };
 
+function normalizeDateToIso(raw: any): string {
+  if (!raw || typeof raw !== "string") return "";
+  const trimmed = raw.trim();
+  if (!trimmed || trimmed === "-" || trimmed === "null") return "";
+
+  // If 5-digit Excel serial number (e.g. 44561)
+  if (/^\d{5}$/.test(trimmed)) {
+    const excelEpoch = new Date(1899, 11, 30);
+    const date = new Date(excelEpoch.getTime() + Number(trimmed) * 86400000);
+    return date.toISOString().split("T")[0];
+  }
+
+  // If YYYY-MM-DD
+  if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(trimmed)) {
+    const [y, m, d] = trimmed.split("-");
+    return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+  }
+
+  // If DD/MM/YYYY or D/M/YYYY or DD-MM-YYYY or D-M-YYYY
+  const parts = trimmed.split(/[\/\-\.]/);
+  if (parts.length === 3) {
+    if (parts[0].length === 4) {
+      // YYYY/MM/DD
+      return `${parts[0]}-${parts[1].padStart(2, "0")}-${parts[2].padStart(2, "0")}`;
+    } else {
+      // DD/MM/YYYY
+      const d = parts[0].padStart(2, "0");
+      const m = parts[1].padStart(2, "0");
+      let y = parts[2];
+      if (y.length === 2) {
+        y = (Number(y) > 50 ? "19" : "20") + y;
+      }
+      return `${y}-${m}-${d}`;
+    }
+  }
+
+  return trimmed;
+}
+
+function cleanIdNumber(val: any): string {
+  if (!val) return "";
+  let s = String(val).trim().replace(/^['"=]+|['"]+$/g, "");
+  if (/^[0-9]+(\.[0-9]+)?e\+[0-9]+$/i.test(s)) {
+    try {
+      const num = Number(s);
+      s = BigInt(Math.round(num)).toString();
+    } catch {
+      // fallback
+    }
+  }
+  return s.replace(/\D/g, "");
+}
+
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   try {
-    const rawBody = await context.request.json();
+    const rawBody = (await context.request.json()) as any;
+
+    // Normalize incoming payload fields
+    if (rawBody.birthDate) {
+      rawBody.birthDate = normalizeDateToIso(rawBody.birthDate);
+    }
+    if (rawBody.joinDate) {
+      rawBody.joinDate = normalizeDateToIso(rawBody.joinDate);
+    }
+    if (rawBody.endContractDate) {
+      rawBody.endContractDate = normalizeDateToIso(rawBody.endContractDate);
+    } else {
+      rawBody.endContractDate = "";
+    }
+    if (rawBody.nik) {
+      rawBody.nik = cleanIdNumber(rawBody.nik);
+    }
+    if (rawBody.noKk) {
+      rawBody.noKk = cleanIdNumber(rawBody.noKk);
+    }
+    if (rawBody.salary !== undefined && rawBody.salary !== null) {
+      const num =
+        typeof rawBody.salary === "string"
+          ? parseFloat(rawBody.salary.replace(/[^0-9.]/g, ""))
+          : Number(rawBody.salary);
+      rawBody.salary = isNaN(num) ? 0 : num;
+    }
+
     const validated = employeeSchema.safeParse(rawBody);
 
     if (!validated.success) {
@@ -135,7 +215,20 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const data = validated.data;
     const db = getDb(context.env.TURSO_DATABASE_URL, context.env.TURSO_AUTH_TOKEN);
 
-    // Verify NIK uniqueness
+    // Resolve department ID if department name or slug was provided
+    let deptId = data.departmentId;
+    const allDepts = await db.select().from(departments);
+    const foundDept = allDepts.find(
+      (d) =>
+        d.id.toLowerCase() === deptId.toLowerCase() ||
+        d.name.toUpperCase() === deptId.toUpperCase() ||
+        d.id.replace("dept-", "").toUpperCase() === deptId.toUpperCase()
+    );
+    if (foundDept) {
+      deptId = foundDept.id;
+    }
+
+    // Verify NIK uniqueness; if exists, perform UPSERT update
     const existing = await db
       .select({ id: employees.id })
       .from(employees)
@@ -143,12 +236,42 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       .limit(1);
 
     if (existing.length > 0) {
+      const existingId = existing[0].id;
+      await db
+        .update(employees)
+        .set({
+          noKk: data.noKk || null,
+          fullName: data.fullName.toUpperCase().trim(),
+          gender: data.gender,
+          birthPlace: data.birthPlace?.toUpperCase().trim() || null,
+          birthDate: data.birthDate,
+          address: data.address?.toUpperCase().trim() || null,
+          religion: data.religion?.toUpperCase().trim() || null,
+          maritalStatus: data.maritalStatus?.toUpperCase().trim() || null,
+          departmentId: deptId,
+          position: data.position.toUpperCase().trim(),
+          employmentStatus: data.employmentStatus,
+          salary:
+            data.salary !== undefined && data.salary !== null
+              ? Number(data.salary)
+              : null,
+          payrollSystem: data.payrollSystem || null,
+          bpjsKesehatan: data.bpjsKesehatan || null,
+          bpjsKetenagakerjaan: data.bpjsKetenagakerjaan || null,
+          joinDate: data.joinDate,
+          endContractDate: data.endContractDate || null,
+          isActive: data.isActive ?? true,
+          updatedAt: sql`CURRENT_TIMESTAMP`,
+        })
+        .where(eq(employees.id, existingId));
+
       return new Response(
         JSON.stringify({
-          success: false,
-          error: `Employee with NIK ${data.nik} already exists in database.`,
+          success: true,
+          message: "Data karyawan berhasil diperbarui (NIK sudah ada)",
+          id: existingId,
         }),
-        { status: 409, headers: { "Content-Type": "application/json" } }
+        { status: 200, headers: { "Content-Type": "application/json" } }
       );
     }
 
@@ -165,7 +288,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       address: data.address?.toUpperCase().trim() || null,
       religion: data.religion?.toUpperCase().trim() || null,
       maritalStatus: data.maritalStatus?.toUpperCase().trim() || null,
-      departmentId: data.departmentId,
+      departmentId: deptId,
       position: data.position.toUpperCase().trim(),
       employmentStatus: data.employmentStatus,
       salary: data.salary !== undefined && data.salary !== null ? Number(data.salary) : null,

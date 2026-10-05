@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { Employee } from "../types";
+import { MASTER_DEPARTMENTS } from "./departments";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -209,7 +210,67 @@ export function exportEmployeesToCsv(data: Employee[], filename = "MyUPL-Employe
 }
 
 /**
+ * Converts various date formats (DD/MM/YYYY, D/M/YYYY, Excel serial, etc.) to strict ISO YYYY-MM-DD
+ */
+export function normalizeDateToIso(raw: any): string {
+  if (!raw || typeof raw !== "string") return "";
+  const trimmed = raw.trim();
+  if (!trimmed || trimmed === "-" || trimmed === "null") return "";
+
+  // If 5-digit Excel serial number (e.g. 44561)
+  if (/^\d{5}$/.test(trimmed)) {
+    const excelEpoch = new Date(1899, 11, 30);
+    const date = new Date(excelEpoch.getTime() + Number(trimmed) * 86400000);
+    return date.toISOString().split("T")[0];
+  }
+
+  // If YYYY-MM-DD
+  if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(trimmed)) {
+    const [y, m, d] = trimmed.split("-");
+    return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+  }
+
+  // If DD/MM/YYYY or D/M/YYYY or DD-MM-YYYY or D-M-YYYY
+  const parts = trimmed.split(/[\/\-\.]/);
+  if (parts.length === 3) {
+    if (parts[0].length === 4) {
+      // YYYY/MM/DD
+      return `${parts[0]}-${parts[1].padStart(2, "0")}-${parts[2].padStart(2, "0")}`;
+    } else {
+      // DD/MM/YYYY or D/M/YYYY
+      const d = parts[0].padStart(2, "0");
+      const m = parts[1].padStart(2, "0");
+      let y = parts[2];
+      if (y.length === 2) {
+        y = (Number(y) > 50 ? "19" : "20") + y;
+      }
+      return `${y}-${m}-${d}`;
+    }
+  }
+
+  return trimmed;
+}
+
+/**
+ * Safely extracts numeric ID (NIK or No KK), resolving Excel scientific notation (e.g. 3.2E+15) or quotes
+ */
+export function cleanIdNumber(val: any): string {
+  if (!val) return "";
+  let s = String(val).trim().replace(/^['"=]+|['"]+$/g, "");
+  if (/^[0-9]+(\.[0-9]+)?e\+[0-9]+$/i.test(s)) {
+    try {
+      const num = Number(s);
+      s = BigInt(Math.round(num)).toString();
+    } catch {
+      // fallback
+    }
+  }
+  return s.replace(/\D/g, "");
+}
+
+/**
  * Downloads standard CSV template matching "Pendaftaran Karyawan Baru" Form
+ * Uses text prefix single quote (') for NIK/KK so Excel will not convert them to scientific notation (3.2E+15)
  */
 export function downloadEmployeeCsvTemplate(filename = "Template_Pendaftaran_Karyawan_MyUPL.csv") {
   const headers = [
@@ -235,8 +296,8 @@ export function downloadEmployeeCsvTemplate(filename = "Template_Pendaftaran_Kar
 
   const sampleRows = [
     [
-      `"3514012508940001"`,
-      `"3514012508940002"`,
+      `"'3514012508940001"`,
+      `"'3514012508940002"`,
       `"YAHYA RIZAL ARIS"`,
       `"LAKI-LAKI"`,
       `"PASURUAN"`,
@@ -255,8 +316,8 @@ export function downloadEmployeeCsvTemplate(filename = "Template_Pendaftaran_Kar
       `"2027-10-01"`,
     ],
     [
-      `"3275015001980003"`,
-      `"3275015001980004"`,
+      `"'3275015001980003"`,
+      `"'3275015001980004"`,
       `"SITI NURHALIZA FITRIANI"`,
       `"PEREMPUAN"`,
       `"BEKASI"`,
@@ -290,11 +351,11 @@ export function downloadEmployeeCsvTemplate(filename = "Template_Pendaftaran_Kar
 }
 
 /**
- * Parses uploaded CSV content and maps to Employee objects
+ * Parses uploaded CSV content and maps to Employee objects with robust normalization
  */
 export function parseEmployeeCsv(
   csvText: string,
-  departmentList: Array<{ id: string; name: string }>
+  departmentList: Array<{ id: string; name: string }> = []
 ): { valid: Partial<Employee>[]; errors: string[] } {
   const valid: Partial<Employee>[] = [];
   const errors: string[] = [];
@@ -360,13 +421,16 @@ export function parseEmployeeCsv(
       return "";
     };
 
-    const nik = getVal("nik").replace(/\D/g, "");
-    const noKk = getVal("nokk", "kk").replace(/\D/g, "");
+    const rawNik = getVal("nik");
+    const rawNoKk = getVal("nokk", "kk");
+    const nik = cleanIdNumber(rawNik);
+    const noKk = cleanIdNumber(rawNoKk);
     const fullName = getVal("namalengkap", "nama");
     const rawGender = getVal("jeniskelamin", "gender").toUpperCase();
     const gender = rawGender.includes("PEREM") ? "PEREMPUAN" : "LAKI-LAKI";
     const birthPlace = getVal("tempatlahir", "domisili", "kota");
-    const birthDate = getVal("tanggallahir", "tgl_lahir");
+    const rawBirthDate = getVal("tanggallahir", "tgl_lahir");
+    const birthDate = normalizeDateToIso(rawBirthDate);
     const address = getVal("alamat", "domisili");
     const religion = getVal("agama") || "ISLAM";
     const maritalStatus = getVal("statusperkawinan", "perkawinan") || "BELUM KAWIN";
@@ -392,39 +456,64 @@ export function parseEmployeeCsv(
       : "NON";
     const rawBpjsTk = getVal("bpjsketenagakerjaan", "bpjs_tk").toUpperCase();
     const bpjsKetenagakerjaan = rawBpjsTk.includes("NON") ? "NON AKTIF" : "AKTIF";
-    const joinDate = getVal("tanggalmasuk", "tgl_masuk", "applydate") || new Date().toISOString().split("T")[0];
-    const endContractDate = getVal("akhirkontrak", "tgl_berakhir");
+    const rawJoinDate = getVal("tanggalmasuk", "tgl_masuk", "applydate");
+    const joinDate = normalizeDateToIso(rawJoinDate) || new Date().toISOString().split("T")[0];
+    const rawEndContract = getVal("akhirkontrak", "tgl_berakhir");
+    const endContractDate = normalizeDateToIso(rawEndContract);
 
-    // Validations
+    // Validations with informative feedback
     if (!nik || nik.length !== 16) {
-      errors.push(`Baris ${i + 1}: NIK "${nik}" harus berupa 16 digit angka.`);
+      errors.push(
+        `Baris ${i + 1} (${fullName || "Karyawan"}): NIK "${rawNik}" (${nik.length} digit) tidak valid. NIK wajib 16 digit angka.`
+      );
       continue;
     }
     if (!fullName) {
-      errors.push(`Baris ${i + 1}: Nama Lengkap wajib diisi.`);
+      errors.push(`Baris ${i + 1}: Kolom Nama Lengkap wajib diisi.`);
+      continue;
+    }
+    if (!birthDate) {
+      errors.push(
+        `Baris ${i + 1} (${fullName}): Tanggal lahir "${rawBirthDate}" tidak valid.`
+      );
       continue;
     }
 
-    // Match department
+    // Match department against provided list or master departments
     let matchedDept = departmentList.find(
-      (d) => d.name.toUpperCase() === rawDept.toUpperCase() || d.id === rawDept
+      (d) =>
+        d.name.toUpperCase() === rawDept.toUpperCase() ||
+        d.id.toLowerCase() === rawDept.toLowerCase() ||
+        d.id.replace("dept-", "").toUpperCase() === rawDept.toUpperCase()
     );
+
+    if (!matchedDept) {
+      matchedDept = MASTER_DEPARTMENTS.find(
+        (d) =>
+          d.name.toUpperCase() === rawDept.toUpperCase() ||
+          d.id.toLowerCase() === rawDept.toLowerCase() ||
+          d.id.replace("dept-", "").toUpperCase() === rawDept.toUpperCase()
+      );
+    }
+
     if (!matchedDept && departmentList.length > 0) {
       matchedDept = departmentList[0];
+    } else if (!matchedDept) {
+      matchedDept = MASTER_DEPARTMENTS[0];
     }
 
     valid.push({
       nik,
-      noKk,
+      noKk: noKk || "",
       fullName: fullName.toUpperCase(),
       gender: gender as any,
       birthPlace: birthPlace.toUpperCase(),
-      birthDate: birthDate || "1995-01-01",
+      birthDate,
       address,
       religion: religion.toUpperCase(),
       maritalStatus: maritalStatus.toUpperCase(),
-      departmentId: matchedDept?.id || "dept-produksi",
-      departmentName: matchedDept?.name || "PRODUKSI",
+      departmentId: matchedDept.id,
+      departmentName: matchedDept.name,
       position: position.toUpperCase(),
       employmentStatus: employmentStatus as any,
       salary,
