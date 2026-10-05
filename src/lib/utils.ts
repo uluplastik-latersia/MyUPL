@@ -148,6 +148,7 @@ export async function compressImageOnCanvas(
 
 /**
  * Generates and triggers instant CSV download of employee directory records
+ * Updated to include all fields matching "Pendaftaran Karyawan Baru" Form
  */
 export function exportEmployeesToCsv(data: Employee[], filename = "MyUPL-Employees-Data.csv") {
   const headers = [
@@ -157,33 +158,41 @@ export function exportEmployeesToCsv(data: Employee[], filename = "MyUPL-Employe
     "Jenis Kelamin",
     "Tempat Lahir",
     "Tanggal Lahir",
-    "Departemen",
-    "Jabatan",
-    "Status Kerja",
-    "Tanggal Masuk",
-    "Akhir Kontrak",
-    "Status Aktif",
     "Alamat",
     "Agama",
     "Status Perkawinan",
+    "Departemen",
+    "Jabatan",
+    "Status Kerja",
+    "Gaji",
+    "Sistem Penggajian",
+    "BPJS Kesehatan",
+    "BPJS Ketenagakerjaan",
+    "Tanggal Masuk",
+    "Akhir Kontrak",
+    "Status Aktif",
   ];
 
   const rows = data.map((e) => [
     `"${e.nik}"`,
     `"${e.noKk || ""}"`,
-    `"${e.fullName}"`,
-    `"${e.gender}"`,
-    `"${e.birthPlace || ""}"`,
-    `"${e.birthDate}"`,
-    `"${e.departmentName || ""}"`,
-    `"${e.position}"`,
-    `"${e.employmentStatus}"`,
-    `"${e.joinDate}"`,
-    `"${e.endContractDate || ""}"`,
-    `"${e.isActive ? "AKTIF" : "NON-AKTIF"}"`,
+    `"${(e.fullName || "").replace(/"/g, '""')}"`,
+    `"${e.gender || ""}"`,
+    `"${(e.birthPlace || "").replace(/"/g, '""')}"`,
+    `"${e.birthDate || ""}"`,
     `"${(e.address || "").replace(/"/g, '""')}"`,
     `"${e.religion || ""}"`,
     `"${e.maritalStatus || ""}"`,
+    `"${(e.departmentName || "").replace(/"/g, '""')}"`,
+    `"${(e.position || "").replace(/"/g, '""')}"`,
+    `"${e.employmentStatus || ""}"`,
+    `"${e.salary || 0}"`,
+    `"${e.payrollSystem || "Harian"}"`,
+    `"${e.bpjsKesehatan || "NON"}"`,
+    `"${e.bpjsKetenagakerjaan || "AKTIF"}"`,
+    `"${e.joinDate || ""}"`,
+    `"${e.endContractDate || ""}"`,
+    `"${e.isActive ? "AKTIF" : "NON-AKTIF"}"`,
   ]);
 
   const csvContent =
@@ -197,4 +206,236 @@ export function exportEmployeesToCsv(data: Employee[], filename = "MyUPL-Employe
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+}
+
+/**
+ * Downloads standard CSV template matching "Pendaftaran Karyawan Baru" Form
+ */
+export function downloadEmployeeCsvTemplate(filename = "Template_Pendaftaran_Karyawan_MyUPL.csv") {
+  const headers = [
+    "NIK",
+    "No KK",
+    "Nama Lengkap",
+    "Jenis Kelamin",
+    "Tempat Lahir",
+    "Tanggal Lahir",
+    "Alamat",
+    "Agama",
+    "Status Perkawinan",
+    "Departemen",
+    "Jabatan",
+    "Status Kerja",
+    "Gaji",
+    "Sistem Penggajian",
+    "BPJS Kesehatan",
+    "BPJS Ketenagakerjaan",
+    "Tanggal Masuk",
+    "Akhir Kontrak",
+  ];
+
+  const sampleRows = [
+    [
+      `"3514012508940001"`,
+      `"3514012508940002"`,
+      `"YAHYA RIZAL ARIS"`,
+      `"LAKI-LAKI"`,
+      `"PASURUAN"`,
+      `"1994-08-25"`,
+      `"DUSUN SUKOREJO RT 02 RW 01, PASURUAN"`,
+      `"ISLAM"`,
+      `"KAWIN"`,
+      `"PRODUKSI"`,
+      `"OPERATOR GILINGAN KERING"`,
+      `"PKWT"`,
+      `"3500000"`,
+      `"Harian"`,
+      `"BP PEMDA"`,
+      `"AKTIF"`,
+      `"2026-10-01"`,
+      `"2027-10-01"`,
+    ],
+    [
+      `"3275015001980003"`,
+      `"3275015001980004"`,
+      `"SITI NURHALIZA FITRIANI"`,
+      `"PEREMPUAN"`,
+      `"BEKASI"`,
+      `"1998-01-10"`,
+      `"JL. MAWAR INDAH NO. 45, BEKASI"`,
+      `"ISLAM"`,
+      `"BELUM KAWIN"`,
+      `"STAFF"`,
+      `"HRD"`,
+      `"PKWTT"`,
+      `"5000000"`,
+      `"Bulanan"`,
+      `"PBPU"`,
+      `"AKTIF"`,
+      `"2024-01-15"`,
+      `""`,
+    ],
+  ];
+
+  const csvContent =
+    "data:text/csv;charset=utf-8,\uFEFF" +
+    [headers.join(","), ...sampleRows.map((r) => r.join(","))].join("\n");
+
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+/**
+ * Parses uploaded CSV content and maps to Employee objects
+ */
+export function parseEmployeeCsv(
+  csvText: string,
+  departmentList: Array<{ id: string; name: string }>
+): { valid: Partial<Employee>[]; errors: string[] } {
+  const valid: Partial<Employee>[] = [];
+  const errors: string[] = [];
+
+  // Split lines by CRLF or LF
+  const lines = csvText
+    .split(/\r\n|\n|\r/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
+
+  if (lines.length < 2) {
+    return { valid: [], errors: ["File CSV kosong atau tidak memiliki baris data."] };
+  }
+
+  // Parse a CSV line into cells respecting quotes and supporting comma or semicolon
+  const parseLine = (line: string): string[] => {
+    // Detect delimiter: if semicolon count > comma count outside quotes, use semicolon
+    const delimiter = line.includes(";") && !line.includes(",") ? ";" : ",";
+    const cells: string[] = [];
+    let cur = "";
+    let inQuotes = false;
+
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') {
+        if (inQuotes && line[i + 1] === '"') {
+          cur += '"';
+          i++;
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (c === delimiter && !inQuotes) {
+        cells.push(cur.trim());
+        cur = "";
+      } else {
+        cur += c;
+      }
+    }
+    cells.push(cur.trim());
+    return cells;
+  };
+
+  const headerCells = parseLine(lines[0]).map((h) =>
+    h.toLowerCase().replace(/[^a-z0-9]/g, "")
+  );
+
+  for (let i = 1; i < lines.length; i++) {
+    const rawCells = parseLine(lines[i]);
+    if (rawCells.length === 0 || rawCells.every((c) => !c)) continue;
+
+    const rowObj: Record<string, string> = {};
+    headerCells.forEach((header, index) => {
+      rowObj[header] = rawCells[index] !== undefined ? rawCells[index] : "";
+    });
+
+    const getVal = (...keys: string[]): string => {
+      for (const k of keys) {
+        const cleaned = k.toLowerCase().replace(/[^a-z0-9]/g, "");
+        if (rowObj[cleaned] !== undefined && rowObj[cleaned] !== "") {
+          return rowObj[cleaned];
+        }
+      }
+      return "";
+    };
+
+    const nik = getVal("nik").replace(/\D/g, "");
+    const noKk = getVal("nokk", "kk").replace(/\D/g, "");
+    const fullName = getVal("namalengkap", "nama");
+    const rawGender = getVal("jeniskelamin", "gender").toUpperCase();
+    const gender = rawGender.includes("PEREM") ? "PEREMPUAN" : "LAKI-LAKI";
+    const birthPlace = getVal("tempatlahir", "domisili", "kota");
+    const birthDate = getVal("tanggallahir", "tgl_lahir");
+    const address = getVal("alamat", "domisili");
+    const religion = getVal("agama") || "ISLAM";
+    const maritalStatus = getVal("statusperkawinan", "perkawinan") || "BELUM KAWIN";
+    const rawDept = getVal("departemen", "divisi");
+    const position = getVal("jabatan", "posisi") || "General Staff";
+    const rawStatus = getVal("statuskerja", "statushubungankerja", "status").toUpperCase();
+    const employmentStatus = rawStatus.includes("TETAP") || rawStatus.includes("PKWTT") ? "PKWTT" : "PKWT";
+    const rawSalary = getVal("gaji", "masukangaji").replace(/[^0-9.]/g, "");
+    const salary = rawSalary ? parseFloat(rawSalary) : 0;
+    const rawPayroll = getVal("sistempenggajian", "penggajian");
+    const payrollSystem = rawPayroll.toLowerCase().includes("borong")
+      ? "Borongan"
+      : rawPayroll.toLowerCase().includes("bulan")
+      ? "Bulanan"
+      : "Harian";
+    const rawBpjsKes = getVal("bpjskesehatan", "bpjs_kes").toUpperCase();
+    const bpjsKesehatan = rawBpjsKes.includes("PEMDA")
+      ? "BP PEMDA"
+      : rawBpjsKes.includes("PBPU")
+      ? "PBPU"
+      : rawBpjsKes.includes("PBI")
+      ? "PBI JK"
+      : "NON";
+    const rawBpjsTk = getVal("bpjsketenagakerjaan", "bpjs_tk").toUpperCase();
+    const bpjsKetenagakerjaan = rawBpjsTk.includes("NON") ? "NON AKTIF" : "AKTIF";
+    const joinDate = getVal("tanggalmasuk", "tgl_masuk", "applydate") || new Date().toISOString().split("T")[0];
+    const endContractDate = getVal("akhirkontrak", "tgl_berakhir");
+
+    // Validations
+    if (!nik || nik.length !== 16) {
+      errors.push(`Baris ${i + 1}: NIK "${nik}" harus berupa 16 digit angka.`);
+      continue;
+    }
+    if (!fullName) {
+      errors.push(`Baris ${i + 1}: Nama Lengkap wajib diisi.`);
+      continue;
+    }
+
+    // Match department
+    let matchedDept = departmentList.find(
+      (d) => d.name.toUpperCase() === rawDept.toUpperCase() || d.id === rawDept
+    );
+    if (!matchedDept && departmentList.length > 0) {
+      matchedDept = departmentList[0];
+    }
+
+    valid.push({
+      nik,
+      noKk,
+      fullName: fullName.toUpperCase(),
+      gender: gender as any,
+      birthPlace: birthPlace.toUpperCase(),
+      birthDate: birthDate || "1995-01-01",
+      address,
+      religion: religion.toUpperCase(),
+      maritalStatus: maritalStatus.toUpperCase(),
+      departmentId: matchedDept?.id || "dept-produksi",
+      departmentName: matchedDept?.name || "PRODUKSI",
+      position: position.toUpperCase(),
+      employmentStatus: employmentStatus as any,
+      salary,
+      payrollSystem: payrollSystem as any,
+      bpjsKesehatan: bpjsKesehatan as any,
+      bpjsKetenagakerjaan: bpjsKetenagakerjaan as any,
+      joinDate,
+      endContractDate: endContractDate || null,
+      isActive: true,
+    });
+  }
+
+  return { valid, errors };
 }

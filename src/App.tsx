@@ -12,6 +12,7 @@ import { EmploymentStatusChart } from "./components/Dashboard/Charts/EmploymentS
 import { EmployeeDirectory } from "./components/Employee/EmployeeDirectory";
 import { EmployeeDetailModal } from "./components/Employee/EmployeeDetailModal";
 import { EmployeeFormModal } from "./components/Employee/EmployeeFormModal";
+import { ConfirmModal } from "./components/ConfirmModal";
 import { CameraScannerModal } from "./components/Scanner/CameraScannerModal";
 import { OcrReviewForm } from "./components/Scanner/OcrReviewForm";
 import {
@@ -95,6 +96,17 @@ export const App: React.FC = () => {
   const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
   const [activeOcrData, setActiveOcrData] = useState<KtpOcrResult | null>(null);
   const [activeOcrImage, setActiveOcrImage] = useState<string | null>(null);
+
+  // Modern Confirmation Modal State
+  const [confirmDeleteState, setConfirmDeleteState] = useState<{
+    isOpen: boolean;
+    employeeId: string;
+    employeeName: string;
+  }>({
+    isOpen: false,
+    employeeId: "",
+    employeeName: "",
+  });
 
   // Keyboard shortcut listener (Ctrl+K or Cmd+K)
   useEffect(() => {
@@ -197,22 +209,30 @@ export const App: React.FC = () => {
     await fetchData();
   };
 
-  // Delete Employee
-  const handleDeleteEmployee = async (id: string, name: string) => {
-    const confirmDelete = window.confirm(`Apakah Anda yakin ingin menghapus data karyawan: ${name}?`);
-    if (!confirmDelete) return;
+  // Delete Employee (Opens Modern Confirmation Modal)
+  const handleDeleteEmployee = (id: string, name: string) => {
+    setConfirmDeleteState({
+      isOpen: true,
+      employeeId: id,
+      employeeName: name,
+    });
+  };
+
+  const handleConfirmDelete = async () => {
+    const { employeeId, employeeName } = confirmDeleteState;
+    setConfirmDeleteState({ isOpen: false, employeeId: "", employeeName: "" });
 
     try {
-      const res = await fetch(`/api/employees/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/employees/${employeeId}`, { method: "DELETE" });
       const data = (await res.json()) as any;
       if (data.success) {
-        setSystemNotice(`Karyawan ${name} berhasil dihapus.`);
+        setSystemNotice(`Data karyawan ${employeeName} berhasil dihapus.`);
         await fetchData();
       } else {
-        alert(data.error || "Gagal menghapus karyawan.");
+        setSystemNotice(`Gagal menghapus karyawan: ${data.error || "Terjadi kesalahan"}`);
       }
     } catch (err: any) {
-      alert(`Error: ${err.message}`);
+      setSystemNotice(`Error saat menghapus data: ${err.message}`);
     } finally {
       setTimeout(() => setSystemNotice(null), 4000);
     }
@@ -362,6 +382,7 @@ export const App: React.FC = () => {
                   setFormInitialData(null);
                   setIsFormModalOpen(true);
                 }}
+                onRefreshData={fetchData}
               />
             </div>
           )}
@@ -489,6 +510,20 @@ export const App: React.FC = () => {
         isOpen={isCameraModalOpen}
         onClose={() => setIsCameraModalOpen(false)}
         onOcrSuccess={handleOcrSuccess}
+      />
+
+      {/* Modern Confirmation Modal */}
+      <ConfirmModal
+        isOpen={confirmDeleteState.isOpen}
+        title="Hapus Data Karyawan"
+        message={`Apakah Anda yakin ingin menghapus data karyawan "${confirmDeleteState.employeeName}"? Data yang sudah dihapus tidak dapat dipulihkan.`}
+        confirmLabel="Ya, Hapus Data"
+        cancelLabel="Batal"
+        isDestructive={true}
+        onConfirm={handleConfirmDelete}
+        onCancel={() =>
+          setConfirmDeleteState({ isOpen: false, employeeId: "", employeeName: "" })
+        }
       />
     </div>
   );
