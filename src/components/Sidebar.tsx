@@ -35,30 +35,53 @@ export const Sidebar: React.FC<SidebarProps> = ({
     >
       {/* Top Header & Branding (MyUPL logo) */}
       <div>
-        <div className="h-18 flex items-center justify-between px-4 sm:px-5 py-4 border-b border-slate-100">
-          <div
-            className="flex items-center gap-3 overflow-hidden cursor-pointer"
-            onClick={() => setActiveTab("dashboard")}
-          >
-            <img
-              src="/logo.png"
-              alt="MyUPL Logo"
-              className="h-8 w-auto max-w-[32px] object-contain shrink-0"
-            />
-            {!collapsed && (
-              <span className="font-extrabold text-2xl text-black tracking-tight">
-                MyUPL
-              </span>
-            )}
-          </div>
-
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition shrink-0"
-            title={collapsed ? "Perluas Sidebar" : "Ciutkan Sidebar"}
-          >
-            {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-          </button>
+        <div className="h-18 border-b border-slate-100 flex items-center">
+          {collapsed ? (
+            <div className="w-full flex items-center justify-between px-2.5 py-4">
+              <div
+                className="cursor-pointer hover:opacity-85 transition shrink-0 flex items-center justify-center"
+                onClick={() => setActiveTab("dashboard")}
+                title="MyUPL Dashboard"
+              >
+                <img
+                  src="/logo.png"
+                  alt="MyUPL Logo"
+                  className="w-7 h-7 object-contain shrink-0"
+                />
+              </div>
+              <button
+                onClick={() => setCollapsed(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition shrink-0"
+                title="Perluas Sidebar"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <div className="w-full flex items-center justify-between px-5 py-4">
+              <div
+                className="flex items-center gap-3 cursor-pointer hover:opacity-90 transition shrink-0"
+                onClick={() => setActiveTab("dashboard")}
+                title="MyUPL Dashboard"
+              >
+                <img
+                  src="/logo.png"
+                  alt="MyUPL Logo"
+                  className="h-8 w-auto max-w-[32px] object-contain shrink-0"
+                />
+                <span className="font-extrabold text-2xl text-black tracking-tight whitespace-nowrap">
+                  MyUPL
+                </span>
+              </div>
+              <button
+                onClick={() => setCollapsed(true)}
+                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition shrink-0"
+                title="Ciutkan Sidebar"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Navigation - Only active features */}
