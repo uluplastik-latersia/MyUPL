@@ -477,12 +477,12 @@ export const OcrReviewForm: React.FC<OcrReviewFormProps> = ({
                     <input
                       type="number"
                       min={0}
-                      step={50000}
+                      step="any"
                       value={formData.salary || ""}
                       onChange={(e) =>
                         setFormData({ ...formData, salary: Number(e.target.value) || 0 })
                       }
-                      placeholder="0"
+                      placeholder="Contoh: 80000"
                       className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-sm font-mono text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                     />
                   </div>

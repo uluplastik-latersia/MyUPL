@@ -450,12 +450,12 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                   <input
                     type="number"
                     min={0}
-                    step={1000}
+                    step="any"
                     value={formData.salary ?? 0}
                     onChange={(e) =>
                       setFormData({ ...formData, salary: parseInt(e.target.value) || 0 })
                     }
-                    placeholder="Contoh: 3500000"
+                    placeholder="Contoh: 80000 atau 3500000"
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-sm text-slate-800 font-mono focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                   />
                 </div>
