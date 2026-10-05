@@ -48,14 +48,28 @@ export function calculateTenure(joinDateStr?: string | null): string {
   try {
     const jDate = new Date(joinDateStr);
     const now = new Date();
+    if (isNaN(jDate.getTime())) return "-";
+
     let years = now.getFullYear() - jDate.getFullYear();
     let months = now.getMonth() - jDate.getMonth();
+    let days = now.getDate() - jDate.getDate();
+
+    if (days < 0) {
+      months--;
+    }
     if (months < 0) {
       years--;
       months += 12;
     }
-    if (years === 0) {
+
+    if (years <= 0 && months <= 0) {
+      return "< 1 bln";
+    }
+    if (years <= 0) {
       return `${months} bln`;
+    }
+    if (months === 0) {
+      return `${years} thn`;
     }
     return `${years} thn ${months} bln`;
   } catch {

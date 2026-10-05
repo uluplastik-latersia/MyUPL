@@ -24,6 +24,7 @@ import {
 import type { Employee, Department, EmploymentStatus } from "../../types";
 import {
   formatDateIndo,
+  calculateTenure,
   exportEmployeesToCsv,
   downloadEmployeeCsvTemplate,
 } from "../../lib/utils";
@@ -725,9 +726,9 @@ export const EmployeeDirectory: React.FC<EmployeeDirectoryProps> = ({
                   Status
                 </th>
 
-                {/* Tanggal Masuk */}
-                <th className="py-4 px-3 font-semibold text-slate-700 min-w-[100px]">
-                  Tgl Masuk
+                {/* Masa Kerja */}
+                <th className="py-4 px-3 font-semibold text-slate-700 min-w-[110px]">
+                  Masa Kerja
                 </th>
 
                 {/* Action */}
@@ -841,9 +842,14 @@ export const EmployeeDirectory: React.FC<EmployeeDirectoryProps> = ({
                         {renderStatusPill(emp.employmentStatus)}
                       </td>
 
-                      {/* Tanggal Masuk */}
-                      <td className="py-3 px-3 font-mono text-slate-500 text-xs">
-                        {emp.joinDate ? emp.joinDate.replace(/-/g, "/") : "-"}
+                      {/* Masa Kerja */}
+                      <td className="py-3 px-3">
+                        <div className="font-semibold text-slate-800 text-xs">
+                          {calculateTenure(emp.joinDate)}
+                        </div>
+                        <div className="text-[10px] text-slate-400 font-mono">
+                          Masuk: {emp.joinDate ? emp.joinDate.replace(/-/g, "/") : "-"}
+                        </div>
                       </td>
 
                       {/* Action Buttons */}
