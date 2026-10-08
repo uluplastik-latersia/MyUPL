@@ -243,10 +243,35 @@ export function devApiPlugin() {
 
             const expiringContracts30: any[] = [];
             const expiringContracts60: any[] = [];
+            const todayBirthdays: any[] = [];
+
+            const currentMonthDay = `${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
             for (const emp of filteredEmps) {
               if (emp.isActive) {
                 activeCount++;
+
+                // Birthday check
+                if (emp.birthDate) {
+                  const bParts = emp.birthDate.split("-");
+                  if (bParts.length === 3) {
+                    const bMonthDay = `${bParts[1].padStart(2, "0")}-${bParts[2].padStart(2, "0")}`;
+                    if (bMonthDay === currentMonthDay) {
+                      const bDate = new Date(emp.birthDate);
+                      const age = now.getFullYear() - bDate.getFullYear();
+                      todayBirthdays.push({
+                        id: emp.id,
+                        nik: emp.nik,
+                        fullName: emp.fullName,
+                        position: emp.position,
+                        departmentName: emp.departmentName,
+                        birthDate: emp.birthDate,
+                        age: isNaN(age) ? 0 : age,
+                      });
+                    }
+                  }
+                }
+
                 if (emp.gender === "PEREMPUAN") genderStats["PEREMPUAN"]++;
                 else genderStats["LAKI-LAKI"]++;
 
@@ -326,6 +351,7 @@ export function devApiPlugin() {
                   expiringUnder30Count: expiringContracts30.length,
                   expiringUnder60Count: expiringContracts60.length,
                   totalExpiring: expiringContracts30.length + expiringContracts60.length,
+                  birthdayTodayCount: todayBirthdays.length,
                 },
                 charts: {
                   genderDistribution: [
@@ -352,6 +378,7 @@ export function devApiPlugin() {
                 alerts: {
                   expiring30Days: expiringContracts30.sort((a, b) => a.daysLeft - b.daysLeft),
                   expiring60Days: expiringContracts60.sort((a, b) => a.daysLeft - b.daysLeft),
+                  todayBirthdays,
                 },
               },
             });

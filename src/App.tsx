@@ -39,6 +39,7 @@ const DEFAULT_METRICS: AnalyticsData["metrics"] = {
   expiringUnder30Count: 0,
   expiringUnder60Count: 0,
   totalExpiring: 0,
+  birthdayTodayCount: 0,
 };
 
 const DEFAULT_CHARTS: AnalyticsData["charts"] = {
@@ -328,9 +329,14 @@ export const App: React.FC = () => {
               {/* Row 2: 4 High-Density KPI Metric Cards */}
               <MetricCards
                 metrics={analytics.metrics}
+                todayBirthdays={analytics.alerts?.todayBirthdays || []}
                 onExpiringClick={() => {
                   const el = document.getElementById("contract-alerts-section");
                   el?.scrollIntoView({ behavior: "smooth" });
+                }}
+                onSelectEmployee={(id) => {
+                  const target = employees.find((e) => e.id === id);
+                  if (target) setSelectedEmployee(target);
                 }}
               />
 

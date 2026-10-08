@@ -47,6 +47,16 @@ export interface ExpiringContractAlert {
   daysLeft: number;
 }
 
+export interface BirthdayEmployee {
+  id: string;
+  nik: string;
+  fullName: string;
+  position: string;
+  departmentName?: string;
+  birthDate: string;
+  age: number;
+}
+
 export interface AnalyticsData {
   metrics: {
     activeHeadcount: number;
@@ -55,6 +65,7 @@ export interface AnalyticsData {
     expiringUnder30Count: number;
     expiringUnder60Count: number;
     totalExpiring: number;
+    birthdayTodayCount?: number;
   };
   charts: {
     genderDistribution: { name: string; value: number; color: string }[];
@@ -66,6 +77,7 @@ export interface AnalyticsData {
   alerts: {
     expiring30Days: ExpiringContractAlert[];
     expiring60Days: ExpiringContractAlert[];
+    todayBirthdays?: BirthdayEmployee[];
   };
 }
 
