@@ -14,7 +14,7 @@ import {
 import type { ExpiringContractAlert } from "../types";
 
 interface DesktopHeaderProps {
-  activeTab: "dashboard" | "directory" | "scanner" | "csv-converter";
+  activeTab: "dashboard" | "directory" | "scanner" | "csv-converter" | "slip-gaji";
   onRefresh: () => void;
   expiringCount: number;
   expiring30Days?: ExpiringContractAlert[];
@@ -100,6 +100,11 @@ export const DesktopHeader: React.FC<DesktopHeaderProps> = ({
         return {
           title: "Konverter CSV ke HTML A4 Landscape",
           subtitle: "Pratinjau Data Keluarga & Peserta JKN • Cetak PDF Presisi Tanpa Simpan Database",
+        };
+      case "slip-gaji":
+        return {
+          title: "Slip Gaji Generator",
+          subtitle: "Pembuat & Cetak Slip Gaji Karyawan Otomatis (PPh 21 TER & BPJS)",
         };
     }
   };

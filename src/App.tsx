@@ -16,6 +16,7 @@ import { ConfirmModal } from "./components/ConfirmModal";
 import { CameraScannerModal } from "./components/Scanner/CameraScannerModal";
 import { OcrReviewForm } from "./components/Scanner/OcrReviewForm";
 import { CsvToHtmlConverter } from "./components/Converter/CsvToHtmlConverter";
+import { SalarySlipGenerator } from "./components/Payroll/SalarySlipGenerator";
 import {
   Camera,
   Users,
@@ -72,7 +73,7 @@ const DEFAULT_CHARTS: AnalyticsData["charts"] = {
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
-    "dashboard" | "directory" | "scanner" | "csv-converter"
+    "dashboard" | "directory" | "scanner" | "csv-converter" | "slip-gaji"
   >("dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -485,6 +486,13 @@ export const App: React.FC = () => {
           {activeTab === "csv-converter" && (
             <div className="animate-in fade-in duration-200">
               <CsvToHtmlConverter />
+            </div>
+          )}
+
+          {/* TAB 5: Salary Slip Generator View */}
+          {activeTab === "slip-gaji" && (
+            <div className="animate-in fade-in duration-200">
+              <SalarySlipGenerator employees={employees} />
             </div>
           )}
         </main>

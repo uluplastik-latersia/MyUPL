@@ -6,11 +6,12 @@ import {
   ChevronLeft,
   ChevronRight,
   FileSpreadsheet,
+  ReceiptText,
 } from "lucide-react";
 
 interface SidebarProps {
-  activeTab: "dashboard" | "directory" | "scanner" | "csv-converter";
-  setActiveTab: (tab: "dashboard" | "directory" | "scanner" | "csv-converter") => void;
+  activeTab: "dashboard" | "directory" | "scanner" | "csv-converter" | "slip-gaji";
+  setActiveTab: (tab: "dashboard" | "directory" | "scanner" | "csv-converter" | "slip-gaji") => void;
   collapsed: boolean;
   setCollapsed: (collapsed: boolean) => void;
   headcount: number;
@@ -199,6 +200,37 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   }`}
                 >
                   HTML
+                </span>
+              </div>
+            )}
+          </button>
+
+          {/* 5. Salary Slip Generator */}
+          <button
+            onClick={() => setActiveTab("slip-gaji")}
+            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+              activeTab === "slip-gaji"
+                ? "bg-blue-600 text-white shadow-md shadow-blue-500/25"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+            }`}
+            title="Slip Gaji Generator"
+          >
+            <ReceiptText
+              className={`w-4 h-4 shrink-0 ${
+                activeTab === "slip-gaji" ? "text-white" : "text-emerald-600"
+              }`}
+            />
+            {!collapsed && (
+              <div className="flex-1 flex items-center justify-between">
+                <span>Slip Gaji</span>
+                <span
+                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${
+                    activeTab === "slip-gaji"
+                      ? "bg-white/20 text-white border-white/30"
+                      : "bg-emerald-50 text-emerald-600 border-emerald-200"
+                  }`}
+                >
+                  PDF
                 </span>
               </div>
             )}
