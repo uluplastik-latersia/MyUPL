@@ -82,14 +82,13 @@ CRITICAL EXTRACTION RULES:
 OUTPUT REQUIREMENT:
 Return ONLY a valid JSON object matching the JSON schema. Do not enclose in markdown code blocks like \`\`\`json.`;
 
+    // Prioritize active and fast models available for this API key
     const candidateModels = [
-      "gemini-2.5-flash",
-      "gemini-2.5-flash-lite",
-      "gemini-flash-latest",
-      "gemini-flash-lite-latest",
       "gemini-3.5-flash",
-      "gemini-3.5-flash-lite",
       "gemini-3.8-flash",
+      "gemini-3.5-flash-lite",
+      "gemini-flash-lite-latest",
+      "gemini-flash-latest",
     ];
 
     const requestPayload = {
@@ -114,7 +113,7 @@ Return ONLY a valid JSON object matching the JSON schema. Do not enclose in mark
       },
       generationConfig: {
         temperature: 0.1,
-        maxOutputTokens: 1024,
+        maxOutputTokens: 2048,
         responseMimeType: "application/json",
       },
     };
@@ -162,7 +161,7 @@ Return ONLY a valid JSON object matching the JSON schema. Do not enclose in mark
       );
     }
 
-    // Sanitization logic: strip accidental markdown fences or extraneous whitespace
+    // Sanitization logic: extract JSON block and repair unterminated or unescaped strings if needed
     let sanitizedJson = rawCandidateText.trim();
     if (sanitizedJson.startsWith("```json")) {
       sanitizedJson = sanitizedJson
@@ -172,7 +171,37 @@ Return ONLY a valid JSON object matching the JSON schema. Do not enclose in mark
       sanitizedJson = sanitizedJson.replace(/^```\s*/, "").replace(/\s*```$/, "");
     }
 
-    const parsed: KtpOcrResult = JSON.parse(sanitizedJson);
+    // Extract exact outer JSON if extra surrounding text was included
+    const jsonMatch = sanitizedJson.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      sanitizedJson = jsonMatch[0];
+    }
+
+    // Resilient parse function
+    const parseSafeJson = (text: string): KtpOcrResult => {
+      try {
+        return JSON.parse(text);
+      } catch (e1) {
+        // Attempt to clean unescaped newlines/tabs inside string values
+        let cleaned = text
+          .replace(/[\u0000-\u001F]+/g, (match) => (match === "\n" || match === "\r" || match === "\t" ? " " : ""));
+        try {
+          return JSON.parse(cleaned);
+        } catch (e2) {
+          // If truncated/unterminated, attempt closing open quote and brace
+          if (!cleaned.endsWith("}")) {
+            if (cleaned.endsWith('"')) {
+              cleaned = cleaned + "}";
+            } else {
+              cleaned = cleaned + '"}';
+            }
+          }
+          return JSON.parse(cleaned);
+        }
+      }
+    };
+
+    const parsed: KtpOcrResult = parseSafeJson(sanitizedJson);
 
     // Normalization & Fallbacks
     const cleanResult: KtpOcrResult = {
