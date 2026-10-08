@@ -14,7 +14,7 @@ import {
 import type { ExpiringContractAlert } from "../types";
 
 interface DesktopHeaderProps {
-  activeTab: "dashboard" | "directory" | "scanner";
+  activeTab: "dashboard" | "directory" | "scanner" | "csv-converter";
   onRefresh: () => void;
   expiringCount: number;
   expiring30Days?: ExpiringContractAlert[];
@@ -95,6 +95,11 @@ export const DesktopHeader: React.FC<DesktopHeaderProps> = ({
         return {
           title: "Smart OCR e-KTP Onboarding",
           subtitle: "Ekstraksi Otomatis Dokumen Berbasis Google Gemini Vision",
+        };
+      case "csv-converter":
+        return {
+          title: "Konverter CSV ke HTML A4 Landscape",
+          subtitle: "Pratinjau Data Keluarga & Peserta JKN • Cetak PDF Presisi Tanpa Simpan Database",
         };
     }
   };

@@ -15,6 +15,7 @@ import { EmployeeFormModal } from "./components/Employee/EmployeeFormModal";
 import { ConfirmModal } from "./components/ConfirmModal";
 import { CameraScannerModal } from "./components/Scanner/CameraScannerModal";
 import { OcrReviewForm } from "./components/Scanner/OcrReviewForm";
+import { CsvToHtmlConverter } from "./components/Converter/CsvToHtmlConverter";
 import {
   Camera,
   Users,
@@ -70,7 +71,9 @@ const DEFAULT_CHARTS: AnalyticsData["charts"] = {
 };
 
 export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"dashboard" | "directory" | "scanner">("dashboard");
+  const [activeTab, setActiveTab] = useState<
+    "dashboard" | "directory" | "scanner" | "csv-converter"
+  >("dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -475,6 +478,13 @@ export const App: React.FC = () => {
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* TAB 4: CSV to HTML Converter View */}
+          {activeTab === "csv-converter" && (
+            <div className="animate-in fade-in duration-200">
+              <CsvToHtmlConverter />
             </div>
           )}
         </main>
