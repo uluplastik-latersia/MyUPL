@@ -229,12 +229,19 @@ export const SalarySlipGenerator: React.FC<SalarySlipGeneratorProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Print-specific style block to isolate only the printable slip and format onto standard paper */}
+      {/* Print-specific style block to isolate only the printable slip and format onto standard A4 paper */}
       <style>{`
         @media print {
           @page {
             size: A4 portrait;
-            margin: 12mm 15mm;
+            margin: 15mm 20mm;
+          }
+          html, body {
+            background: #ffffff !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
           body * {
             visibility: hidden !important;
@@ -248,9 +255,15 @@ export const SalarySlipGenerator: React.FC<SalarySlipGeneratorProps> = ({
             left: 0 !important;
             top: 0 !important;
             width: 100% !important;
-            margin: 0 !important;
+            max-width: 100% !important;
+            margin: 0 auto !important;
             padding: 0 !important;
-            background: white !important;
+            background: #ffffff !important;
+            box-shadow: none !important;
+            border: none !important;
+            border-radius: 0 !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
           }
           .no-print {
             display: none !important;
@@ -623,9 +636,9 @@ export const SalarySlipGenerator: React.FC<SalarySlipGeneratorProps> = ({
                   <tr>
                     <td className="w-24 text-center align-middle pr-3">
                       <img
-                        src="/logo.png"
+                        src="/logo-slip.png"
                         alt="PT ULU PLASTIK LATERSIA Logo"
-                        className="max-h-20 max-w-[80px] object-contain mx-auto"
+                        className="max-h-20 max-w-[84px] object-contain mx-auto"
                       />
                     </td>
                     <td className="align-middle pl-2">
