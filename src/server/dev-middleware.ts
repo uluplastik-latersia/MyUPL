@@ -136,7 +136,7 @@ export function devApiPlugin() {
                 bpjsKesehatan: data.bpjsKesehatan || null,
                 bpjsKetenagakerjaan: data.bpjsKetenagakerjaan || null,
                 joinDate: data.joinDate,
-                endContractDate: data.endContractDate || null,
+                endContractDate: data.employmentStatus === "PKWTT" ? null : (data.endContractDate || null),
                 isActive: data.isActive ?? true,
                 ktpImageBase64OrUrl: data.ktpImageBase64OrUrl || null,
               });
@@ -176,7 +176,9 @@ export function devApiPlugin() {
                   bpjsKesehatan: body.bpjsKesehatan !== undefined ? body.bpjsKesehatan : undefined,
                   bpjsKetenagakerjaan: body.bpjsKetenagakerjaan !== undefined ? body.bpjsKetenagakerjaan : undefined,
                   joinDate: body.joinDate || undefined,
-                  endContractDate: body.endContractDate !== undefined ? body.endContractDate || null : undefined,
+                  endContractDate: body.employmentStatus === "PKWTT" 
+                    ? null 
+                    : (body.endContractDate !== undefined ? (body.endContractDate || null) : undefined),
                   isActive: body.isActive !== undefined ? body.isActive : undefined,
                 })
                 .where(eq(employees.id, id));

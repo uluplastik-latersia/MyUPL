@@ -535,7 +535,7 @@ export function parseEmployeeCsv(
       bpjsKesehatan: bpjsKesehatan as any,
       bpjsKetenagakerjaan: bpjsKetenagakerjaan as any,
       joinDate,
-      endContractDate: endContractDate || null,
+      endContractDate: employmentStatus === "PKWTT" ? null : (endContractDate || null),
       isActive: true,
     });
   }

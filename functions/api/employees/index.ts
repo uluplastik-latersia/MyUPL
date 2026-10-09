@@ -259,7 +259,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           bpjsKesehatan: data.bpjsKesehatan || null,
           bpjsKetenagakerjaan: data.bpjsKetenagakerjaan || null,
           joinDate: data.joinDate,
-          endContractDate: data.endContractDate || null,
+          endContractDate: data.employmentStatus === "PKWTT" ? null : (data.endContractDate || null),
           isActive: data.isActive ?? true,
           updatedAt: sql`CURRENT_TIMESTAMP`,
         })
@@ -296,7 +296,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       bpjsKesehatan: data.bpjsKesehatan || null,
       bpjsKetenagakerjaan: data.bpjsKetenagakerjaan || null,
       joinDate: data.joinDate,
-      endContractDate: data.endContractDate || null,
+      endContractDate: data.employmentStatus === "PKWTT" ? null : (data.endContractDate || null),
       isActive: data.isActive ?? true,
       ktpImageBase64OrUrl: data.ktpImageBase64OrUrl || null,
     });

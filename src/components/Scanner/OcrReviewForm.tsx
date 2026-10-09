@@ -136,10 +136,13 @@ export const OcrReviewForm: React.FC<OcrReviewFormProps> = ({
       return;
     }
 
-    const validation = reviewFormSchema.safeParse({
+    const cleanedFormData = {
       ...formData,
+      endContractDate: formData.employmentStatus === "PKWTT" ? null : formData.endContractDate || null,
       salary: Number(formData.salary) || 0,
-    });
+    };
+
+    const validation = reviewFormSchema.safeParse(cleanedFormData);
 
     if (!validation.success) {
       const fieldErrors: Record<string, string> = {};
@@ -518,17 +521,19 @@ export const OcrReviewForm: React.FC<OcrReviewFormProps> = ({
                   </label>
                   <select
                     value={formData.employmentStatus}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const newStatus = e.target.value as EmploymentStatus;
                       setFormData({
                         ...formData,
-                        employmentStatus: e.target.value as EmploymentStatus,
-                      })
-                    }
+                        employmentStatus: newStatus,
+                        endContractDate: newStatus === "PKWTT" ? "" : formData.endContractDate,
+                      });
+                    }}
                     className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition font-medium"
                   >
                     {EMPLOYMENT_STATUSES.map((st) => (
                       <option key={st} value={st}>
-                        {st === "PKWT" ? "PKWT (Perjanjian Kerja Waktu Tertentu)" : "PKWTT (Tetap / Permanen)"}
+                        {st === "PKWT" ? "PKWT (Perjanjian Kerja Waktu Tertentu)" : "PKWTT (Pegawai Tetap / Permanen)"}
                       </option>
                     ))}
                   </select>

@@ -176,12 +176,14 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
                 </span>
               </div>
 
-              <div className="sm:col-span-2">
-                <span className="text-[11px] text-slate-400 block font-medium">Akhir Masa Kontrak (PKWT)</span>
-                <span className="text-sm font-mono font-bold text-orange-600">
-                  {employee.endContractDate ? formatDateIndo(employee.endContractDate) : "Permanen (PKWTT)"}
-                </span>
-              </div>
+              {employee.employmentStatus === "PKWT" && employee.endContractDate && (
+                <div className="sm:col-span-2">
+                  <span className="text-[11px] text-slate-400 block font-medium">Akhir Masa Kontrak (PKWT)</span>
+                  <span className="text-sm font-mono font-bold text-orange-600">
+                    {formatDateIndo(employee.endContractDate)}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 

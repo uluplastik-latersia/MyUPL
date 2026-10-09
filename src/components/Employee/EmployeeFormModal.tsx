@@ -143,9 +143,15 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
       return;
     }
 
+    // Jika PKWTT (Tetap), pastikan endContractDate kosong/null
+    const payloadToSave: Partial<Employee> = {
+      ...formData,
+      endContractDate: formData.employmentStatus === "PKWTT" ? null : formData.endContractDate || null,
+    };
+
     try {
       setLoading(true);
-      await onSave(formData);
+      await onSave(payloadToSave);
       onClose();
     } catch (err: any) {
       setErrorMessage(err.message || "Gagal menyimpan data karyawan.");
@@ -386,16 +392,18 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                 </label>
                 <select
                   value={formData.employmentStatus || "PKWT"}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const newStatus = e.target.value as EmploymentStatus;
                     setFormData({
                       ...formData,
-                      employmentStatus: e.target.value as EmploymentStatus,
-                    })
-                  }
+                      employmentStatus: newStatus,
+                      endContractDate: newStatus === "PKWTT" ? "" : formData.endContractDate,
+                    });
+                  }}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                 >
                   <option value="PKWT">PKWT (Perjanjian Kerja Waktu Tertentu)</option>
-                  <option value="PKWTT">PKWTT (Perjanjian Kerja Waktu Tidak Tertentu)</option>
+                  <option value="PKWTT">PKWTT (Pegawai Tetap / Permanen)</option>
                 </select>
               </div>
 

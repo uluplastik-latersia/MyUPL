@@ -87,7 +87,9 @@ export const onRequestPut: PagesFunction<Env> = async (context) => {
         bpjsKesehatan: body.bpjsKesehatan !== undefined ? body.bpjsKesehatan : undefined,
         bpjsKetenagakerjaan: body.bpjsKetenagakerjaan !== undefined ? body.bpjsKetenagakerjaan : undefined,
         joinDate: body.joinDate || undefined,
-        endContractDate: body.endContractDate !== undefined ? (body.endContractDate || null) : undefined,
+        endContractDate: body.employmentStatus === "PKWTT" 
+          ? null 
+          : (body.endContractDate !== undefined ? (body.endContractDate || null) : undefined),
         isActive: body.isActive !== undefined ? body.isActive : undefined,
         ktpImageBase64OrUrl: body.ktpImageBase64OrUrl || undefined,
         updatedAt: sql`CURRENT_TIMESTAMP`,
