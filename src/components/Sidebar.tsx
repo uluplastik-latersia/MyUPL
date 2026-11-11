@@ -7,11 +7,12 @@ import {
   ChevronRight,
   FileSpreadsheet,
   ReceiptText,
+  ShieldCheck,
 } from "lucide-react";
 
 interface SidebarProps {
-  activeTab: "dashboard" | "directory" | "scanner" | "csv-converter" | "slip-gaji";
-  setActiveTab: (tab: "dashboard" | "directory" | "scanner" | "csv-converter" | "slip-gaji") => void;
+  activeTab: "dashboard" | "directory" | "scanner" | "csv-converter" | "slip-gaji" | "bpjstk";
+  setActiveTab: (tab: "dashboard" | "directory" | "scanner" | "csv-converter" | "slip-gaji" | "bpjstk") => void;
   collapsed: boolean;
   setCollapsed: (collapsed: boolean) => void;
   headcount: number;
@@ -231,6 +232,37 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   }`}
                 >
                   PDF
+                </span>
+              </div>
+            )}
+          </button>
+
+          {/* 6. BPJSTK (Formulir 2a PU) */}
+          <button
+            onClick={() => setActiveTab("bpjstk")}
+            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+              activeTab === "bpjstk"
+                ? "bg-emerald-600 text-white shadow-md shadow-emerald-500/25"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+            }`}
+            title="BPJS Ketenagakerjaan (Formulir 2a PU)"
+          >
+            <ShieldCheck
+              className={`w-4 h-4 shrink-0 ${
+                activeTab === "bpjstk" ? "text-white" : "text-teal-600"
+              }`}
+            />
+            {!collapsed && (
+              <div className="flex-1 flex items-center justify-between">
+                <span>BPJSTK</span>
+                <span
+                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${
+                    activeTab === "bpjstk"
+                      ? "bg-white/20 text-white border-white/30"
+                      : "bg-teal-50 text-teal-700 border-teal-200"
+                  }`}
+                >
+                  PU 2a
                 </span>
               </div>
             )}

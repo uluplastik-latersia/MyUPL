@@ -14,7 +14,7 @@ import {
 import type { ExpiringContractAlert } from "../types";
 
 interface DesktopHeaderProps {
-  activeTab: "dashboard" | "directory" | "scanner" | "csv-converter" | "slip-gaji";
+  activeTab: "dashboard" | "directory" | "scanner" | "csv-converter" | "slip-gaji" | "bpjstk";
   onRefresh: () => void;
   expiringCount: number;
   expiring30Days?: ExpiringContractAlert[];
@@ -105,6 +105,11 @@ export const DesktopHeader: React.FC<DesktopHeaderProps> = ({
         return {
           title: "Slip Gaji Generator",
           subtitle: "Pembuat & Cetak Slip Gaji Karyawan Otomatis (PPh 21 TER & BPJS)",
+        };
+      case "bpjstk":
+        return {
+          title: "BPJS Ketenagakerjaan (Formulir 2a PU)",
+          subtitle: "Konversi Rincian Iuran Tenaga Kerja (PDF) ke Tabel HTML Presisi & Ekspor CSV",
         };
     }
   };

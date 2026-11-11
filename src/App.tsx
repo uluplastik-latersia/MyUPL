@@ -17,6 +17,7 @@ import { CameraScannerModal } from "./components/Scanner/CameraScannerModal";
 import { OcrReviewForm } from "./components/Scanner/OcrReviewForm";
 import { CsvToHtmlConverter } from "./components/Converter/CsvToHtmlConverter";
 import { SalarySlipGenerator } from "./components/Payroll/SalarySlipGenerator";
+import { BpjstkPdfConverter } from "./components/Bpjstk/BpjstkPdfConverter";
 import {
   Camera,
   Users,
@@ -73,7 +74,7 @@ const DEFAULT_CHARTS: AnalyticsData["charts"] = {
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
-    "dashboard" | "directory" | "scanner" | "csv-converter" | "slip-gaji"
+    "dashboard" | "directory" | "scanner" | "csv-converter" | "slip-gaji" | "bpjstk"
   >("dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -493,6 +494,13 @@ export const App: React.FC = () => {
           {activeTab === "slip-gaji" && (
             <div className="animate-in fade-in duration-200">
               <SalarySlipGenerator employees={employees} />
+            </div>
+          )}
+
+          {/* TAB 6: BPJS Ketenagakerjaan PDF to HTML & CSV View */}
+          {activeTab === "bpjstk" && (
+            <div className="animate-in fade-in duration-200">
+              <BpjstkPdfConverter />
             </div>
           )}
         </main>
